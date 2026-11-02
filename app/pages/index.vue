@@ -6,15 +6,9 @@ const { items, has, add, remove, rename, displayName } = useWishlist()
 
 <template>
   <div>
-    <PokemonSearch
-      :is-in-wishlist="has"
-      @add="add"
-    />
+    <PokemonSearch :is-in-wishlist="has" @add="add" />
 
-    <section
-      class="list"
-      aria-labelledby="list-title"
-    >
+    <section class="list" aria-labelledby="list-title">
       <div class="list-head">
         <h1 id="list-title">
           Ma wishlist <span class="list-count">({{ items.length }})</span>
@@ -22,20 +16,12 @@ const { items, has, add, remove, rename, displayName } = useWishlist()
         <PrenomsToggle />
       </div>
 
-      <p
-        v-if="items.length === 0"
-        class="empty"
-      >
+      <p v-if="items.length === 0" class="empty">
         Ta wishlist est vide. Cherche un Pokémon ou parcours la
         <NuxtLink to="/liste-complete">liste complète</NuxtLink>.
       </p>
 
-      <TransitionGroup
-        v-else
-        name="card"
-        tag="div"
-        class="grid"
-      >
+      <TransitionGroup v-else name="card" tag="div" class="grid">
         <PokemonCard
           v-for="item in items"
           :key="item.pokemon.id"

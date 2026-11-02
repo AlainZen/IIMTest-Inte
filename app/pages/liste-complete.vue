@@ -15,9 +15,11 @@ function titleOf(entry: PokedexEntry): string {
 }
 
 function matches(entry: PokedexEntry, text: string): boolean {
-  return String(entry.id) === text
-    || normalize(entry.name).includes(text)
-    || (showPrenoms.value && normalize(prenomOf(entry.id)).includes(text))
+  return (
+    String(entry.id) === text ||
+    normalize(entry.name).includes(text) ||
+    (showPrenoms.value && normalize(prenomOf(entry.id)).includes(text))
+  )
 }
 
 const visibleEntries = computed<readonly PokedexEntry[]>(() => {
@@ -36,11 +38,9 @@ async function toggle(entry: PokedexEntry): Promise<void> {
   pendingIds.value.add(entry.id)
   try {
     add(await fetchPokemon(String(entry.id)))
-  }
-  catch {
+  } catch {
     error.value = `${entry.name} n'a pas été ajouté : PokeAPI ne répond pas. Réessaie dans un instant.`
-  }
-  finally {
+  } finally {
     pendingIds.value.delete(entry.id)
   }
 }
@@ -48,30 +48,20 @@ async function toggle(entry: PokedexEntry): Promise<void> {
 
 <template>
   <div>
-    <form
-      class="search search-sticky"
-      role="search"
-      @submit.prevent
-    >
+    <form class="search search-sticky" role="search" @submit.prevent>
       <div class="search-bar">
-        <label
-          class="sr-only"
-          for="filter-input"
-        >Filtrer la liste</label>
+        <label class="sr-only" for="filter-input">Filtrer la liste</label>
         <input
           id="filter-input"
           v-model="filter"
           type="search"
           placeholder="Filtrer par nom ou numéro"
           autocomplete="off"
-        >
+        />
       </div>
     </form>
 
-    <section
-      class="list"
-      aria-labelledby="pokedex-title"
-    >
+    <section class="list" aria-labelledby="pokedex-title">
       <div class="list-head">
         <h1 id="pokedex-title">
           Liste complète <span class="list-count">({{ visibleEntries.length }})</span>
@@ -79,25 +69,15 @@ async function toggle(entry: PokedexEntry): Promise<void> {
         <PrenomsToggle />
       </div>
 
-      <p
-        v-if="error"
-        class="search-error pokedex-error"
-        role="alert"
-      >
+      <p v-if="error" class="search-error pokedex-error" role="alert">
         {{ error }}
       </p>
 
-      <p
-        v-if="visibleEntries.length === 0"
-        class="empty"
-      >
+      <p v-if="visibleEntries.length === 0" class="empty">
         Aucun Pokémon ne correspond à « {{ filter }} ». Essaie un autre nom.
       </p>
 
-      <div
-        v-else
-        class="pokedex"
-      >
+      <div v-else class="pokedex">
         <PokedexEntryCard
           v-for="entry in visibleEntries"
           :key="entry.id"

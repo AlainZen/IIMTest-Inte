@@ -11,33 +11,17 @@ const emit = defineEmits<{ toggle: [] }>()
 </script>
 
 <template>
-  <article
-    class="entry"
-    :class="{ 'entry-added': inWishlist }"
-    data-testid="pokedex-entry"
-  >
+  <article class="entry" :class="{ 'entry-added': inWishlist }" data-testid="pokedex-entry">
     <div class="entry-art">
-      <img
-        :src="entry.image"
-        alt=""
-        width="96"
-        height="96"
-        loading="lazy"
-        decoding="async"
-      >
+      <img :src="entry.image" alt="" width="96" height="96" loading="lazy" decoding="async" />
     </div>
     <div class="entry-body">
       <div class="entry-names">
-        <p class="entry-number">
-          n° {{ entry.id }}
-        </p>
+        <p class="entry-number">n° {{ entry.id }}</p>
         <h2 class="entry-name">
           {{ title }}
         </h2>
-        <p
-          v-if="title !== entry.name"
-          class="card-official"
-        >
+        <p v-if="title !== entry.name" class="card-official">
           {{ entry.name }}
         </p>
       </div>

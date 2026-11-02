@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { WishlistItem } from '~/types/pokemon'
 
-const props = defineProps<{ item: WishlistItem, title: string }>()
-const emit = defineEmits<{ remove: [], rename: [nickname: string] }>()
+const props = defineProps<{ item: WishlistItem; title: string }>()
+const emit = defineEmits<{ remove: []; rename: [nickname: string] }>()
 
 const editing = ref<boolean>(false)
 const draft = ref<string>('')
@@ -22,14 +22,8 @@ function saveName(): void {
 </script>
 
 <template>
-  <article
-    class="card"
-    data-testid="pokemon-card"
-  >
-    <div
-      class="card-art"
-      :style="{ background: typeBackground(item.pokemon.types) }"
-    >
+  <article class="card" data-testid="pokemon-card">
+    <div class="card-art" :style="{ background: typeBackground(item.pokemon.types) }">
       <span class="card-number">n° {{ item.pokemon.speciesId }}</span>
       <img
         v-if="item.pokemon.image"
@@ -38,43 +32,29 @@ function saveName(): void {
         width="180"
         height="180"
         loading="lazy"
-      >
+      />
     </div>
 
     <div class="card-body">
-      <form
-        v-if="editing"
-        class="rename"
-        @submit.prevent="saveName"
-        @keydown.esc="editing = false"
-      >
-        <label
-          class="sr-only"
-          :for="`nom-${item.pokemon.id}`"
-        >Nouveau nom de {{ item.pokemon.name }}</label>
+      <form v-if="editing" class="rename" @submit.prevent="saveName" @keydown.esc="editing = false">
+        <label class="sr-only" :for="`nom-${item.pokemon.id}`"
+          >Nouveau nom de {{ item.pokemon.name }}</label
+        >
         <input
           :id="`nom-${item.pokemon.id}`"
           ref="nameInput"
           v-model="draft"
           maxlength="30"
           :placeholder="item.pokemon.name"
-        >
-        <button
-          type="submit"
-          class="button-primary"
-        >
-          Enregistrer
-        </button>
+        />
+        <button type="submit" class="button-primary">Enregistrer</button>
       </form>
 
       <template v-else>
         <h2 class="card-name">
           {{ title }}
         </h2>
-        <p
-          v-if="title !== item.pokemon.name"
-          class="card-official"
-        >
+        <p v-if="title !== item.pokemon.name" class="card-official">
           {{ item.pokemon.name }}
         </p>
       </template>
@@ -82,12 +62,7 @@ function saveName(): void {
       <PokemonTypes :types="item.pokemon.types" />
 
       <div class="card-actions">
-        <button
-          v-if="!editing"
-          type="button"
-          class="button-text"
-          @click="startEditing"
-        >
+        <button v-if="!editing" type="button" class="button-text" @click="startEditing">
           Renommer
         </button>
         <button

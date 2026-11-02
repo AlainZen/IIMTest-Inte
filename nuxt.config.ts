@@ -9,7 +9,12 @@ export default defineNuxtConfig({
     head: {
       title: 'Mon Pokédex',
       htmlAttrs: { lang: 'fr' },
-      meta: [{ name: 'description', content: 'Cherche des Pokémon et garde ta liste dans ton navigateur.' }],
+      meta: [
+        {
+          name: 'description',
+          content: 'Cherche des Pokémon et garde ta liste dans ton navigateur.',
+        },
+      ],
     },
   },
   css: [
@@ -19,4 +24,8 @@ export default defineNuxtConfig({
     '~/assets/css/main.css',
   ],
   compatibilityDate: '2025-07-15',
+  typescript: {
+    // Vérifie aussi les types des tests.
+    tsConfig: { include: ['../tests/**/*.ts'] },
+  },
 })

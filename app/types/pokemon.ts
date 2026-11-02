@@ -1,7 +1,22 @@
-export type PokemonType
-  = | 'normal' | 'fire' | 'water' | 'electric' | 'grass' | 'ice'
-    | 'fighting' | 'poison' | 'ground' | 'flying' | 'psychic' | 'bug'
-    | 'rock' | 'ghost' | 'dragon' | 'dark' | 'steel' | 'fairy'
+export type PokemonType =
+  | 'normal'
+  | 'fire'
+  | 'water'
+  | 'electric'
+  | 'grass'
+  | 'ice'
+  | 'fighting'
+  | 'poison'
+  | 'ground'
+  | 'flying'
+  | 'psychic'
+  | 'bug'
+  | 'rock'
+  | 'ghost'
+  | 'dragon'
+  | 'dark'
+  | 'steel'
+  | 'fairy'
 
 // Un Pokémon tel que l'application l'utilise, avec son nom français.
 export interface Pokemon {

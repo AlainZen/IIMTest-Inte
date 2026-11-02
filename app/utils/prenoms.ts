@@ -16,8 +16,26 @@ const PRENOMS_PAR_NUMERO: Record<number, string> = {
 
 // Les autres Pokémon reçoivent toujours le même prénom, calculé à partir de leur numéro.
 const PRENOMS = [
-  'Amine', 'Anis', 'Ayoub', 'Farid', 'Hakim', 'Ibrahim', 'Ismaël', 'Jamel', 'Khalil', 'Malik',
-  'Nassim', 'Omar', 'Rayan', 'Sofiane', 'Tarek', 'Walid', 'Yacine', 'Youssef', 'Zakaria', 'Nabil',
+  'Amine',
+  'Anis',
+  'Ayoub',
+  'Farid',
+  'Hakim',
+  'Ibrahim',
+  'Ismaël',
+  'Jamel',
+  'Khalil',
+  'Malik',
+  'Nassim',
+  'Omar',
+  'Rayan',
+  'Sofiane',
+  'Tarek',
+  'Walid',
+  'Yacine',
+  'Youssef',
+  'Zakaria',
+  'Nabil',
 ]
 
 export function prenomOf(speciesId: number): string {

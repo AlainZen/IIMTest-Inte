@@ -20,13 +20,21 @@ L'application tourne sur `http://localhost:3000`.
 
 ```bash
 npm run lint
+npm run format:check
 npm run typecheck
+npm run test:unit
+npm run test:coverage
 npm run build
 npx playwright install chromium
 npm run test:e2e
 ```
 
-La CI GitHub Actions lance ces mêmes étapes à chaque push sur `main` et sur chaque pull request.
+- **Tests unitaires** (Vitest, `tests/unit`) : `fetch` et `localStorage` sont simulés, les tests passent sans connexion à PokeAPI.
+- **Tests e2e** (Playwright, `tests/e2e`) : l'application construite tourne dans un vrai navigateur, avec PokeAPI simulée. Lance `npm run build` avant.
+
+## Intégration continue
+
+GitHub Actions lance sept contrôles séparés à chaque pull request et à chaque push sur `main` : lint, Prettier, typecheck, Vitest et couverture, build, tests e2e, audit de sécurité. Chacun repart d'un `npm ci`.
 
 ## Noms français
 

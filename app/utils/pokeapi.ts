@@ -43,14 +43,12 @@ export async function fetchPokemon(query: string): Promise<Pokemon> {
   const key = toApiKey(query)
   if (!key) throw new PokemonNotFoundError()
 
-  try {
-    return toPokemon(await $fetch<ApiPokemon>(`${API_URL}/${encodeURIComponent(key)}`))
-  }
-  catch (error) {
-    const status = (error as { statusCode?: number }).statusCode
-    if (status === 404) throw new PokemonNotFoundError()
-    throw error
-  }
+  const response = await fetch(`${API_URL}/${encodeURIComponent(key)}`)
+
+  if (response.status === 404) throw new PokemonNotFoundError()
+  if (!response.ok) throw new Error(`PokeAPI a répondu ${response.status}`)
+
+  return toPokemon((await response.json()) as ApiPokemon)
 }
 
 // Le nom français et l'image se déduisent du numéro : la liste complète s'affiche sans 1025 appels à l'API.

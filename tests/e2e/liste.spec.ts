@@ -12,7 +12,7 @@ const SALAMECHE = {
 
 test.beforeEach(async ({ page }) => {
   await page.route('https://raw.githubusercontent.com/**', route => route.abort())
-  await page.route('https://pokeapi.co/api/v2/pokemon/*', (route) => {
+  await page.route('https://pokeapi.co/api/v2/pokemon/*', route => {
     const key = route.request().url().split('/').pop()
     return ['4', 'charmander'].includes(key ?? '')
       ? route.fulfill({ json: SALAMECHE })
@@ -47,7 +47,7 @@ test('supprimer un Pokémon, rafraîchir : il ne revient pas', async ({ page }) 
   await expect(page.getByText('Ta wishlist est vide')).toBeVisible()
 })
 
-test('un Pokémon déjà ajouté ne peut pas l\'être une deuxième fois', async ({ page }) => {
+test("un Pokémon déjà ajouté ne peut pas l'être une deuxième fois", async ({ page }) => {
   await addSalameche(page)
   await page.getByLabel('Nom ou numéro du Pokémon').fill('4')
   await page.getByRole('button', { name: 'Chercher' }).click()
@@ -87,7 +87,7 @@ test.describe('liste complète', () => {
     await expect(page.getByRole('heading', { name: /Liste complète/ })).toBeVisible()
   })
 
-  test('affiche tous les Pokémon et se parcourt jusqu\'au dernier', async ({ page }) => {
+  test("affiche tous les Pokémon et se parcourt jusqu'au dernier", async ({ page }) => {
     await expect(page.getByTestId('pokedex-entry')).toHaveCount(1025)
 
     await page.getByRole('heading', { name: 'Pêchaminus' }).scrollIntoViewIfNeeded()
@@ -97,7 +97,7 @@ test.describe('liste complète', () => {
 
   test('le filtre réduit la liste sans appeler PokeAPI', async ({ page }) => {
     let apiCalls = 0
-    page.on('request', (request) => {
+    page.on('request', request => {
       if (request.url().includes('pokeapi.co')) apiCalls += 1
     })
 
@@ -107,7 +107,9 @@ test.describe('liste complète', () => {
     expect(apiCalls).toBe(0)
   })
 
-  test('ajouter depuis la liste complète, rafraîchir : il est dans la wishlist', async ({ page }) => {
+  test('ajouter depuis la liste complète, rafraîchir : il est dans la wishlist', async ({
+    page,
+  }) => {
     await page.getByRole('button', { name: 'Ajouter Salamèche' }).click()
     await expect(page.getByRole('button', { name: 'Retirer Salamèche' })).toBeVisible()
 
@@ -118,12 +120,14 @@ test.describe('liste complète', () => {
     await expect(page.getByRole('heading', { name: 'Salamèche' })).toBeVisible()
   })
 
-  test('une erreur de PokeAPI affiche un message et n\'ajoute rien', async ({ page }) => {
-    await page.route('https://pokeapi.co/api/v2/pokemon/*', route => route.fulfill({ status: 500, body: 'Erreur' }))
+  test("une erreur de PokeAPI affiche un message et n'ajoute rien", async ({ page }) => {
+    await page.route('https://pokeapi.co/api/v2/pokemon/*', route =>
+      route.fulfill({ status: 500, body: 'Erreur' }),
+    )
 
     await page.getByRole('button', { name: 'Ajouter Salamèche' }).click()
 
-    await expect(page.getByRole('alert')).toContainText('Salamèche n\'a pas été ajouté')
+    await expect(page.getByRole('alert')).toContainText("Salamèche n'a pas été ajouté")
     await expect(page.getByRole('button', { name: 'Ajouter Salamèche' })).toBeVisible()
   })
 })
