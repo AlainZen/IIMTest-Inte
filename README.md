@@ -1,75 +1,37 @@
-# Nuxt Minimal Starter
+# Mon Pokédex
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Application Nuxt à deux pages :
 
-## Setup
+- **Ma wishlist** (`/`) : cherche un Pokémon avec [PokeAPI](https://pokeapi.co), ajoute-le, renomme-le ou supprime-le. La wishlist est gardée dans le `localStorage` et reste là après un rafraîchissement.
+- **Liste complète** (`/liste-complete`) : parcours tous les Pokémon, filtre-les et ajoute ceux que tu veux.
 
-Make sure to install dependencies:
+Les types partagés (`Pokemon`, `WishlistItem`…) sont dans `app/types/pokemon.ts`.
+
+## Lancer le projet
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+L'application tourne sur `http://localhost:3000`.
 
-Build the application for production:
+## Vérifier le code
 
 ```bash
-# npm
+npm run lint
+npm run typecheck
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+npx playwright install chromium
+npm run test:e2e
 ```
 
-Locally preview production build:
+La CI GitHub Actions lance ces mêmes étapes à chaque push sur `main` et sur chaque pull request.
+
+## Noms français
+
+PokeAPI ne cherche que par numéro ou par nom anglais. `app/data/pokemon-fr.json` fait le lien entre les noms français et les numéros. Pour le régénérer :
 
 ```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+node scripts/generate-fr-names.mjs
 ```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.

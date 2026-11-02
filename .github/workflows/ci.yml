@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   ci:
-    name: Lint, typecheck, build
+    name: Lint, typecheck, build, e2e
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -36,3 +36,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Installer le navigateur de test
+        run: npx playwright install --with-deps chromium
+
+      - name: Tests e2e
+        run: npm run test:e2e
