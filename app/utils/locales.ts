@@ -11,6 +11,12 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   de: 'Deutsch',
 }
 
+export const LOCALE_COOKIE = 'pokewishlist_locale'
+
 export function isLocale(value: unknown): value is Locale {
   return LOCALES.includes(value as Locale)
+}
+
+export function resolveLocale(value: unknown): Locale {
+  return isLocale(value) ? value : DEFAULT_LOCALE
 }

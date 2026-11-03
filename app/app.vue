@@ -1,10 +1,13 @@
 <script setup lang="ts">
 const { t, locale } = useLanguage()
-const { load } = useWishlist()
+const { load, loadPreferences } = useWishlist()
 
 useHead({ htmlAttrs: { lang: locale } })
 
-onMounted(load)
+onMounted(() => {
+  loadPreferences()
+  void load()
+})
 </script>
 
 <template>

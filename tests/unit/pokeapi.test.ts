@@ -14,6 +14,7 @@ import {
 } from '~/utils/pokeapi'
 
 const API_URL = 'https://pokeapi.co/api/v2/pokemon'
+const MOCK_URL = 'http://mock.test'
 
 const CHARMANDER: ApiPokemon = {
   id: 4,
@@ -64,6 +65,14 @@ describe('fetchPokemon', () => {
       await fetchPokemon('  SALAMECHE ')
 
       expect(fetchMock).toHaveBeenCalledExactlyOnceWith(`${API_URL}/4`)
+    })
+
+    it('utilise l’adresse de PokeAPI configurée', async () => {
+      respondWith(200, CHARMANDER)
+
+      await fetchPokemon('4', MOCK_URL)
+
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith(`${MOCK_URL}/pokemon/4`)
     })
 
     it("garde la petite image si l'illustration officielle manque", async () => {
@@ -172,7 +181,7 @@ describe('noms selon la langue', () => {
 
   it('construit l’adresse de la fiche', () => {
     expect(pokemonPath(25)).toBe('/pokemon/pikachu')
-    expect(pokemonPath(29)).toBe('/pokemon/nidoran%E2%99%80')
+    expect(pokemonPath(29)).toBe('/pokemon/nidoran-f')
     expect(pokemonPath(10001)).toBe('/pokemon/10001')
   })
 })
@@ -182,6 +191,7 @@ describe('toApiKey', () => {
     ['Salamèche', '4'],
     ['Glumanda', '4'],
     ['nidoran♀', '29'],
+    ['nidoran-f', '29'],
     ['pikachu', '25'],
     ['150', '150'],
     ['Mr. Mime', '122'],

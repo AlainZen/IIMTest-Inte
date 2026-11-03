@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 import {
   addThroughApi,
   API_URL,
+  breakPokeApi,
   clearWishlist,
   mockPokeApi,
   namesInApi,
@@ -168,9 +169,7 @@ test.describe('liste complète', () => {
   })
 
   test('une panne de PokeAPI affiche un message et n’ajoute rien', async ({ page, request }) => {
-    await page.route('https://pokeapi.co/api/v2/pokemon/*', route =>
-      route.fulfill({ status: 500, body: 'Erreur' }),
-    )
+    await breakPokeApi(page)
 
     await page.getByRole('button', { name: 'Ajouter Salamèche' }).click()
 

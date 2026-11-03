@@ -3,6 +3,7 @@ import type { PokedexEntry } from '~/types/pokemon'
 import { pokedexEntries } from '~/utils/pokeapi'
 
 const { t, locale } = useLanguage()
+const pokeApiBase = useRuntimeConfig().public.pokeApiBase
 const { items, showPrenoms, isFull, has, add, remove } = useWishlist()
 
 useHead({ title: () => t('nav.pokedex') })
@@ -35,7 +36,7 @@ async function addEntry(entry: PokedexEntry): Promise<void> {
   // Les détails du Pokémon ne sont demandés à PokeAPI qu'au moment de l'ajouter.
   let pokemon
   try {
-    pokemon = await fetchPokemon(String(entry.id))
+    pokemon = await fetchPokemon(String(entry.id), pokeApiBase)
   } catch {
     error.value = t('pokedex.pokeapiDown', { name: nameOf(entry) })
     return

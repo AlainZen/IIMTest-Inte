@@ -12,6 +12,7 @@ interface Wishlist {
   status: Ref<WishlistStatus>
   showPrenoms: Ref<boolean>
   isFull: Ref<boolean>
+  loadPreferences: () => void
   load: () => Promise<void>
   has: (pokemonId: number) => boolean
   add: (pokemon: Pokemon) => Promise<AddOutcome>
@@ -30,10 +31,16 @@ export function useWishlist(): Wishlist {
   // useState partage les mêmes données entre toutes les pages.
   const items = useState<WishlistItem[]>('wishlist', () => [])
   const status = useState<WishlistStatus>('wishlist-status', () => 'loading')
-  const nicknames = useState<Nicknames>('nicknames', readNicknames)
-  const showPrenoms = useState<boolean>('show-prenoms', readShowPrenoms)
+  const nicknames = useState<Nicknames>('nicknames', () => ({}))
+  const showPrenoms = useState<boolean>('show-prenoms', () => false)
 
   const isFull = computed<boolean>(() => items.value.length >= MAX_WISHLIST_SIZE)
+
+  // Le localStorage n'existe que dans le navigateur : il est lu une fois la page affichée.
+  function loadPreferences(): void {
+    nicknames.value = readNicknames()
+    showPrenoms.value = readShowPrenoms()
+  }
 
   async function load(): Promise<void> {
     status.value = 'loading'
@@ -115,6 +122,7 @@ export function useWishlist(): Wishlist {
     status,
     showPrenoms,
     isFull,
+    loadPreferences,
     load,
     has,
     add,

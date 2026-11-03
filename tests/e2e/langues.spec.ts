@@ -86,6 +86,16 @@ for (const { code, nav, add, refusal } of LANGUAGES) {
   })
 }
 
+test('un cookie de langue invalide revient à l’anglais', async ({ page }) => {
+  await page
+    .context()
+    .addCookies([{ name: 'pokewishlist_locale', value: 'klingon', url: 'http://localhost:3000' }])
+
+  await page.goto('/')
+
+  await expect(page.getByRole('heading', { name: /My wishlist/ })).toBeVisible()
+})
+
 test('le mode français ajoute toujours un Pokémon', async ({ page }) => {
   await page.goto('/')
   await page.getByTestId('language-select').selectOption('fr')

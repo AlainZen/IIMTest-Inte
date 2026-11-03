@@ -37,38 +37,25 @@ export async function namesInApi(request: APIRequestContext): Promise<string[]> 
   return items.map(item => item.name)
 }
 
+export const MOCK_POKEAPI_URL = 'http://localhost:3002'
+
 // Seule PokeAPI, un service extérieur, est simulée. Le front, Hono et PostgreSQL sont réels.
 export async function mockPokeApi(page: Page): Promise<void> {
   await page.route('https://raw.githubusercontent.com/**', route => route.abort())
-  await page.route('https://pokeapi.co/api/v2/pokemon/*', route => {
-    const id = Number(route.request().url().split('/').pop())
+}
 
-    return Number.isInteger(id)
-      ? route.fulfill({
-          json: {
-            id,
-            name: `pokemon-${id}`,
-            species: { url: `https://pokeapi.co/api/v2/pokemon-species/${id}/` },
-            types: [{ type: { name: 'fire' } }],
-            sprites: { front_default: null },
-            height: 4,
-            weight: 60,
-            abilities: [{ ability: { name: 'lightning-rod' } }],
-            stats: [
-              { base_stat: 35, stat: { name: 'hp' } },
-              { base_stat: 90, stat: { name: 'speed' } },
-            ],
-          },
-        })
-      : route.fulfill({ status: 404, body: 'Not Found' })
-  })
+// Simule une panne de PokeAPI pour les appels faits par le navigateur.
+export async function breakPokeApi(page: Page): Promise<void> {
+  await page.route(`${MOCK_POKEAPI_URL}/pokemon/*`, route =>
+    route.fulfill({ status: 500, body: 'Erreur' }),
+  )
 }
 
 // La plupart des tests lisent l'interface en français. L'anglais par défaut a ses propres tests.
 export async function useFrench(page: Page): Promise<void> {
-  await page.addInitScript(() => {
-    localStorage.setItem('pokewishlist:locale', JSON.stringify('fr'))
-  })
+  await page
+    .context()
+    .addCookies([{ name: 'pokewishlist_locale', value: 'fr', url: 'http://localhost:3000' }])
 }
 
 export async function searchAndAdd(page: Page, query: string): Promise<void> {

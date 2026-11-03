@@ -3,7 +3,7 @@ import type { ApiPokemon, Pokemon, PokemonDetails, PokedexEntry } from '~/types/
 import type { Locale } from '~/utils/locales'
 import { LOCALES } from '~/utils/locales'
 
-const API_URL = 'https://pokeapi.co/api/v2/pokemon'
+export const DEFAULT_POKEAPI_URL = 'https://pokeapi.co/api/v2'
 const SPRITES_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon'
 
 export class PokemonNotFoundError extends Error {}
@@ -23,7 +23,9 @@ const searchableNames: readonly string[][] = names.en.map((_, index) =>
 )
 
 const idByName: Map<string, number> = new Map(
-  searchableNames.flatMap((list, index) => list.map((name): [string, number] => [name, index + 1])),
+  searchableNames.flatMap((list, index) =>
+    [...list, names.slugs[index] ?? ''].map((name): [string, number] => [name, index + 1]),
+  ),
 )
 
 // PokeAPI ne cherche que par numéro ou par nom anglais : un nom connu est d'abord traduit en numéro.
@@ -48,8 +50,7 @@ export function matchesPokedexEntry(id: number, text: string): boolean {
 }
 
 export function pokemonPath(id: number): string {
-  const name = names.en[id - 1]
-  return `/pokemon/${encodeURIComponent(name ? name.toLowerCase() : String(id))}`
+  return `/pokemon/${names.slugs[id - 1] ?? id}`
 }
 
 export function nameSuggestions(locale: Locale): readonly string[] {
@@ -78,11 +79,11 @@ export function toPokemonDetails(data: ApiPokemon): PokemonDetails {
   }
 }
 
-async function fetchApiPokemon(query: string): Promise<ApiPokemon> {
+async function fetchApiPokemon(query: string, baseUrl: string): Promise<ApiPokemon> {
   const key = toApiKey(query)
   if (!key) throw new PokemonNotFoundError()
 
-  const response = await fetch(`${API_URL}/${encodeURIComponent(key)}`)
+  const response = await fetch(`${baseUrl}/pokemon/${encodeURIComponent(key)}`)
 
   if (response.status === 404) throw new PokemonNotFoundError()
   if (!response.ok) throw new Error(`PokeAPI a répondu ${response.status}`)
@@ -90,12 +91,18 @@ async function fetchApiPokemon(query: string): Promise<ApiPokemon> {
   return (await response.json()) as ApiPokemon
 }
 
-export async function fetchPokemon(query: string): Promise<Pokemon> {
-  return toPokemon(await fetchApiPokemon(query))
+export async function fetchPokemon(
+  query: string,
+  baseUrl: string = DEFAULT_POKEAPI_URL,
+): Promise<Pokemon> {
+  return toPokemon(await fetchApiPokemon(query, baseUrl))
 }
 
-export async function fetchPokemonDetails(query: string): Promise<PokemonDetails> {
-  return toPokemonDetails(await fetchApiPokemon(query))
+export async function fetchPokemonDetails(
+  query: string,
+  baseUrl: string = DEFAULT_POKEAPI_URL,
+): Promise<PokemonDetails> {
+  return toPokemonDetails(await fetchApiPokemon(query, baseUrl))
 }
 
 // L'image se déduit du numéro : la liste complète s'affiche sans 1025 appels à l'API.

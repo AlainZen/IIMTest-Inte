@@ -1,5 +1,6 @@
+import { existsSync, readFileSync } from 'node:fs'
 import { expect, test } from '@playwright/test'
-import { clearWishlist, mockPokeApi, namesInApi, useFrench } from './helpers'
+import { breakPokeApi, clearWishlist, mockPokeApi, namesInApi, useFrench } from './helpers'
 
 test.beforeEach(async ({ page, request }) => {
   await clearWishlist(request)
@@ -29,22 +30,24 @@ test.describe('fiche /pokemon/[name]', () => {
     }
   })
 
-  test('un Pokémon inconnu affiche un message clair', async ({ page }) => {
-    await page.goto('/pokemon/nexistepas')
+  test('un Pokémon inconnu affiche un message clair et répond 404', async ({ page, request }) => {
+    const response = await page.goto('/pokemon/nexistepas')
 
+    expect(response?.status()).toBe(404)
     await expect(page.getByRole('alert')).toContainText("Aucun Pokémon ne s'appelle « nexistepas »")
     await expect(page.getByRole('link', { name: 'Retour à la liste complète' })).toBeVisible()
+    expect((await request.get('/pokemon/nexistepas')).status()).toBe(404)
   })
 
   test('une panne de PokeAPI propose de réessayer', async ({ page }) => {
-    await page.route('https://pokeapi.co/api/v2/pokemon/*', route =>
-      route.fulfill({ status: 500, body: 'Erreur' }),
-    )
-    await page.goto('/pokemon/pikachu')
+    await page.goto('/liste-complete')
+    await page.getByLabel('Filtrer la liste').fill('pikachu')
+    await breakPokeApi(page)
+
+    await page.getByRole('link', { name: 'Pikachu', exact: true }).last().click()
     await expect(page.getByRole('alert')).toContainText('PokeAPI ne répond pas')
 
-    await page.unroute('https://pokeapi.co/api/v2/pokemon/*')
-    await mockPokeApi(page)
+    await page.unroute('http://localhost:3002/pokemon/*')
     await page.getByRole('button', { name: 'Réessayer' }).click()
 
     await expect(page.getByRole('heading', { name: 'Pikachu', level: 1 })).toBeVisible()
@@ -70,5 +73,68 @@ test.describe('fiche /pokemon/[name]', () => {
     await page.getByRole('button', { name: 'Retirer' }).click()
     await expect(page.getByRole('button', { name: 'Ajouter à ma wishlist' })).toBeVisible()
     expect(await namesInApi(request)).toEqual([])
+  })
+})
+
+test.describe('rendu côté serveur', () => {
+  test('la fiche arrive déjà remplie dans le HTML, sans JavaScript', async ({ request }) => {
+    const html = await (await request.get('/pokemon/pikachu')).text()
+
+    expect(html).toContain('data-testid="pokemon-sheet"')
+    expect(html).toContain('Pikachu')
+    expect(html).toContain('Speed')
+  })
+
+  test('le serveur utilise la langue du cookie', async ({ request }) => {
+    const response = await request.get('/pokemon/pikachu', {
+      headers: { Cookie: 'pokewishlist_locale=de' },
+    })
+    const html = await response.text()
+
+    expect(html).toContain('lang="de"')
+    expect(html).toContain('Initiative')
+  })
+
+  test('une page affichée avec JavaScript coupé montre la fiche', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false })
+    const page = await context.newPage()
+
+    await page.goto('http://localhost:3000/pokemon/pikachu')
+
+    await expect(page.getByRole('heading', { name: 'Pikachu', level: 1 })).toBeVisible()
+    await context.close()
+  })
+
+  for (const path of ['/', '/liste-complete', '/pokemon/pikachu', '/pokemon/bulbasaur']) {
+    test(`pas d'erreur d'hydratation sur ${path}, même en français`, async ({ page }) => {
+      const problems: string[] = []
+      page.on('pageerror', error => problems.push(error.message))
+      page.on('console', message => {
+        if (/hydrat/i.test(message.text())) problems.push(message.text())
+      })
+
+      await page.goto(path)
+      await page.waitForLoadState('networkidle')
+
+      expect(problems).toEqual([])
+    })
+  }
+})
+
+test.describe('pré-génération', () => {
+  const FILE = '.output/public/pokemon/bulbasaur/index.html'
+
+  test('le build écrit un fichier HTML pour chaque route injectée', () => {
+    for (const name of ['bulbasaur', 'ivysaur', 'venusaur']) {
+      expect(existsSync(`.output/public/pokemon/${name}/index.html`)).toBe(true)
+    }
+    expect(readFileSync(FILE, 'utf8')).toContain('Bulbasaur')
+  })
+
+  test('une page pré-générée s’affiche dans la langue choisie', async ({ page }) => {
+    await page.goto('/pokemon/bulbasaur')
+
+    await expect(page.getByRole('heading', { name: 'Bulbizarre', level: 1 })).toBeVisible()
+    await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
   })
 })

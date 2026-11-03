@@ -4,6 +4,7 @@ import { defineConfig, devices } from '@playwright/test'
 
 const FRONT_PORT = 3000
 const API_PORT = 3001
+const MOCK_POKEAPI_PORT = 3002
 
 // Le dossier de l'API doit être à côté de celui du front.
 const API_DIR = resolve(process.env.API_DIR ?? '../IIMTest-API')
@@ -39,6 +40,12 @@ export default defineConfig({
   // Ne réutilise jamais un serveur déjà lancé : il pourrait viser la vraie base.
   webServer: [
     {
+      command: 'node tests/e2e/mock-pokeapi.mjs',
+      url: `http://localhost:${MOCK_POKEAPI_PORT}/health`,
+      reuseExistingServer: false,
+      env: { MOCK_POKEAPI_PORT: String(MOCK_POKEAPI_PORT) },
+    },
+    {
       command: 'npm run build && npm start',
       cwd: API_DIR,
       url: `http://localhost:${API_PORT}/health`,
@@ -58,6 +65,8 @@ export default defineConfig({
       env: {
         PORT: String(FRONT_PORT),
         NUXT_PUBLIC_API_BASE: `http://localhost:${API_PORT}`,
+        NUXT_PUBLIC_POKE_API_BASE: `http://localhost:${MOCK_POKEAPI_PORT}`,
+        PRERENDER_LIMIT: '3',
       },
     },
   ],

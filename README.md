@@ -8,7 +8,7 @@ Application Nuxt pour choisir les 6 Pokémon à capturer. Elle cherche les Poké
 
 L'interface existe en anglais (par défaut), français, espagnol et allemand. Les traductions sont dans `app/locales`.
 
-La règle des 6 Pokémon est dans `app/utils/wishlistRules.ts`, les types partagés dans `app/types/pokemon.ts`. Le `localStorage` ne garde que la langue, les surnoms et le réglage des prénoms.
+La règle des 6 Pokémon est dans `app/utils/wishlistRules.ts`, les types partagés dans `app/types/pokemon.ts`. La langue est gardée dans un cookie pour que le serveur la connaisse. Le `localStorage` ne garde que les surnoms et le réglage des prénoms.
 
 ## Lancer le projet
 
@@ -20,6 +20,10 @@ npm run dev
 ```
 
 L'application tourne sur `http://localhost:3000` et appelle l'API sur `http://localhost:3001`. Pour viser une autre adresse, définis la variable `NUXT_PUBLIC_API_BASE`.
+
+## Rendu et pré-génération
+
+L'application est rendue côté serveur (SSR) : une fiche arrive déjà remplie dans le HTML. Au build, `nuxt.config.ts` demande la liste des noms à PokeAPI et injecte les routes `/pokemon/[name]` dans `prerender`. Par défaut, les 151 premiers Pokémon sont générés en HTML, les autres sont rendus à la demande. La variable `PRERENDER_LIMIT` change ce nombre, et `0` désactive la pré-génération.
 
 ## Vérifier le code
 
@@ -42,11 +46,13 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Playwright construit et démarre le front et l'API, qui doit être dans `../IIMTest-API`. Seule PokeAPI est simulée. Coupe tes `npm run dev` avant : les ports 3000 et 3001 doivent être libres. **Ces tests vident la base de `TEST_DATABASE_URL`**, lue dans le `.env` de l'API.
+Playwright construit et démarre le front et l'API, qui doit être dans `../IIMTest-API`. Seule PokeAPI est remplacée par un faux serveur. Coupe tes `npm run dev` avant : les ports 3000, 3001 et 3002 doivent être libres. **Ces tests vident la base de `TEST_DATABASE_URL`**, lue dans le `.env` de l'API.
 
 ## Intégration continue
 
 GitHub Actions lance huit contrôles séparés à chaque push : lint, Prettier, clés de traduction, typecheck, Vitest et couverture, build, tests e2e, audit de sécurité. Le résultat apparaît aussi sur la pull request de la branche.
+
+Sur `main`, si tous les contrôles sont verts, un dernier job déploie le site sur Vercel. Il a besoin des secrets GitHub `VERCEL_TOKEN`, `VERCEL_ORG_ID` et `VERCEL_PROJECT_ID`, et s'ignore tant qu'ils manquent.
 
 ## Noms des Pokémon
 

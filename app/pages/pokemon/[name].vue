@@ -2,38 +2,44 @@
 import type { PokemonDetails } from '~/types/pokemon'
 import { PokemonNotFoundError } from '~/utils/pokeapi'
 
-type SheetStatus = 'loading' | 'ready' | 'not-found' | 'error'
+type SheetResult = { found: true; pokemon: PokemonDetails } | { found: false }
 
 const STAT_MAX = 255
 
 const route = useRoute()
+const event = useRequestEvent()
+const pokeApiBase = useRuntimeConfig().public.pokeApiBase
 const { t, locale } = useLanguage()
 const { isFull, has, add, remove } = useWishlist()
 
-const pokemon = ref<PokemonDetails | null>(null)
-const status = ref<SheetStatus>('loading')
+const requestedName = computed<string>(() => String(route.params.name))
 const actionError = ref<string>('')
 
-const requestedName = computed<string>(() => String(route.params.name))
+// Sur une première visite, le serveur lit PokeAPI et envoie la fiche déjà remplie.
+const { data, status, refresh } = await useAsyncData<SheetResult>(
+  () => `pokemon-${requestedName.value}`,
+  async () => {
+    try {
+      return { found: true, pokemon: await fetchPokemonDetails(requestedName.value, pokeApiBase) }
+    } catch (error) {
+      if (error instanceof PokemonNotFoundError) return { found: false }
+      throw error
+    }
+  },
+)
+
+const pokemon = computed<PokemonDetails | null>(() =>
+  data.value?.found ? data.value.pokemon : null,
+)
+const isNotFound = computed<boolean>(() => data.value?.found === false)
 const displayedName = computed<string>(() =>
   pokemon.value ? localizedName(pokemon.value, locale.value) : requestedName.value,
 )
 
+// Une fiche inconnue répond un vrai 404, pas une page vide en 200.
+if (isNotFound.value && event) setResponseStatus(event, 404)
+
 useHead({ title: () => displayedName.value })
-
-async function load(): Promise<void> {
-  status.value = 'loading'
-  pokemon.value = null
-  actionError.value = ''
-  try {
-    pokemon.value = await fetchPokemonDetails(requestedName.value)
-    status.value = 'ready'
-  } catch (error) {
-    status.value = error instanceof PokemonNotFoundError ? 'not-found' : 'error'
-  }
-}
-
-watch(requestedName, load, { immediate: true })
 
 function formatNumber(value: number): string {
   return value.toLocaleString(locale.value)
@@ -60,16 +66,16 @@ async function toggleWishlist(current: PokemonDetails): Promise<void> {
   <div class="sheet-page">
     <NuxtLink class="sheet-back" to="/liste-complete">{{ t('sheet.back') }}</NuxtLink>
 
-    <p v-if="status === 'loading'" class="empty">{{ t('sheet.loading') }}</p>
+    <p v-if="status === 'pending'" class="empty">{{ t('sheet.loading') }}</p>
 
-    <div v-else-if="status === 'not-found'" class="empty" role="alert">
+    <div v-else-if="isNotFound" class="empty" role="alert">
       <h1 class="sheet-missing">{{ t('sheet.notFound', { name: requestedName }) }}</h1>
       <p>{{ t('sheet.notFoundHelp') }}</p>
     </div>
 
     <div v-else-if="status === 'error'" class="empty" role="alert">
       <p>{{ t('sheet.pokeapiDown') }}</p>
-      <button type="button" class="button-primary empty-action" @click="load">
+      <button type="button" class="button-primary empty-action" @click="refresh()">
         {{ t('common.retry') }}
       </button>
     </div>

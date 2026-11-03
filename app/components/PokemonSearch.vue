@@ -6,6 +6,7 @@ const props = defineProps<{ isInWishlist: (id: number) => boolean; isFull: boole
 const emit = defineEmits<{ add: [pokemon: Pokemon] }>()
 
 const { t, locale } = useLanguage()
+const pokeApiBase = useRuntimeConfig().public.pokeApiBase
 
 const query = ref<string>('')
 const result = ref<Pokemon | null>(null)
@@ -22,7 +23,7 @@ async function search(): Promise<void> {
   error.value = ''
   result.value = null
   try {
-    result.value = await fetchPokemon(text)
+    result.value = await fetchPokemon(text, pokeApiBase)
   } catch (cause) {
     error.value =
       cause instanceof PokemonNotFoundError

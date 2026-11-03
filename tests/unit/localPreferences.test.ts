@@ -1,12 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-  LOCALE_KEY,
   NICKNAMES_KEY,
   PRENOMS_KEY,
-  readLocale,
   readNicknames,
   readShowPrenoms,
-  saveLocale,
   saveNicknames,
   saveShowPrenoms,
 } from '~/utils/localPreferences'
@@ -109,23 +106,5 @@ describe('stockage indisponible', () => {
   it('la sauvegarde ne plante pas', () => {
     expect(() => saveNicknames({ 4: 'Salahedine' })).not.toThrow()
     expect(() => saveShowPrenoms(true)).not.toThrow()
-  })
-})
-
-describe('langue', () => {
-  it('est l’anglais par défaut', () => {
-    expect(readLocale()).toBe('en')
-  })
-
-  it('relit la langue sauvegardée', () => {
-    saveLocale('de')
-
-    expect(readLocale()).toBe('de')
-  })
-
-  it.each(['"ja"', '12', 'pas du json'])('revient à l’anglais pour %s', saved => {
-    localStorage.setItem(LOCALE_KEY, saved)
-
-    expect(readLocale()).toBe('en')
   })
 })
