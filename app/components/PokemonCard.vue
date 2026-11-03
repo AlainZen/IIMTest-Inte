@@ -2,7 +2,7 @@
 import type { WishlistItem } from '~/types/pokemon'
 
 const props = defineProps<{ item: WishlistItem; title: string }>()
-const emit = defineEmits<{ remove: []; rename: [nickname: string] }>()
+const emit = defineEmits<{ remove: []; rename: [nickname: string]; like: [] }>()
 
 const { t, locale } = useLanguage()
 
@@ -66,6 +66,15 @@ function saveName(): void {
       <PokemonTypes :types="item.pokemon.types" />
 
       <div class="card-actions">
+        <button
+          type="button"
+          class="button-like"
+          :aria-label="t('card.likeAria', { name: title, count: item.likes })"
+          data-testid="like-button"
+          @click="emit('like')"
+        >
+          <span aria-hidden="true">♥</span> {{ item.likes }}
+        </button>
         <button v-if="!editing" type="button" class="button-text" @click="startEditing">
           {{ t('card.rename') }}
         </button>

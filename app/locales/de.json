@@ -16,6 +16,7 @@
     "apiDown": "Die API antwortet nicht. Prüfe, ob sie läuft, und versuche es erneut.",
     "addFailed": "{name} wurde nicht hinzugefügt: Die API antwortet nicht.",
     "removeFailed": "{name} wurde nicht entfernt: Die API antwortet nicht.",
+    "likeFailed": "{name} hat dein Like nicht erhalten: Die API antwortet nicht.",
     "duplicate": "{name} ist bereits auf deiner Wunschliste.",
     "full": "Deine Wunschliste ist voll: Entferne ein Pokémon, um ein anderes hinzuzufügen."
   },
@@ -35,7 +36,8 @@
     "save": "Speichern",
     "newName": "Neuer Name für {name}",
     "delete": "Löschen",
-    "deleteAria": "{name} löschen"
+    "deleteAria": "{name} löschen",
+    "likeAria": "{name} liken, bisher {count} Likes"
   },
   "pokemon": {
     "number": "Nr. {id}"

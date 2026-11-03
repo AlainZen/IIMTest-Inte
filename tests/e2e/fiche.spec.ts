@@ -81,6 +81,7 @@ test.describe('rendu côté serveur', () => {
     const html = await (await request.get('/pokemon/pikachu')).text()
 
     expect(html).toContain('data-testid="pokemon-sheet"')
+    expect(html).toContain('<title>Pikachu</title>')
     expect(html).toContain('Pikachu')
     expect(html).toContain('Speed')
   })

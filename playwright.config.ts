@@ -46,7 +46,8 @@ export default defineConfig({
       env: { MOCK_POKEAPI_PORT: String(MOCK_POKEAPI_PORT) },
     },
     {
-      command: 'npm run build && npm start',
+      // Les migrations visent la base de test : DATABASE_URL est remplacé juste en dessous.
+      command: 'npm run migrate && npm run build && npm start',
       cwd: API_DIR,
       url: `http://localhost:${API_PORT}/health`,
       reuseExistingServer: false,

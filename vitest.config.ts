@@ -13,7 +13,7 @@ export default defineConfig({
     unstubGlobals: true,
     coverage: {
       provider: 'v8',
-      reporter: ['text'],
+      reporter: ['text', 'json-summary', 'html'],
       include: [
         'app/utils/pokeapi.ts',
         'app/utils/wishlistRules.ts',

@@ -52,7 +52,8 @@ export default defineNuxtConfig({
   nitro: {
     hooks: {
       // Injecte les fiches à générer. Ce hook ne tourne qu'au build, pas à l'installation.
-      // Les autres fiches sont rendues par le serveur à la demande.
+      // Avec nuxt build, les autres fiches sont rendues par le serveur à la demande.
+      // Avec nuxt generate, Nitro suit aussi les liens de la liste complète : les 1025 fiches sont écrites.
       async 'prerender:routes'(routes) {
         for (const route of await fetchPrerenderRoutes()) routes.add(route)
       },

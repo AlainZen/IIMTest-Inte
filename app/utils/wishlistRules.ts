@@ -1,3 +1,4 @@
+console.log('debug')
 import type { Pokemon } from '~/types/pokemon'
 
 export const MAX_WISHLIST_SIZE = 6

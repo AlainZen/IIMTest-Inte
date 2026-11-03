@@ -400,6 +400,19 @@ main {
   color: var(--red);
 }
 
+.button-like {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-weight: 700;
+}
+
+.button-like:hover,
+.button-like span {
+  color: var(--red);
+}
+
 /* Liste complète : la barre de filtre reste à portée pendant le scroll. */
 .search-sticky {
   position: sticky;

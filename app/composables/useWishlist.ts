@@ -17,6 +17,7 @@ interface Wishlist {
   has: (pokemonId: number) => boolean
   add: (pokemon: Pokemon) => Promise<AddOutcome>
   remove: (pokemonId: number) => Promise<boolean>
+  like: (pokemonId: number) => Promise<boolean>
   rename: (pokemonId: number, nickname: string) => void
   displayName: (item: WishlistItem) => string
   setShowPrenoms: (value: boolean) => void
@@ -96,6 +97,19 @@ export function useWishlist(): Wishlist {
     return true
   }
 
+  async function like(pokemonId: number): Promise<boolean> {
+    const item = items.value.find(entry => entry.pokemon.id === pokemonId)
+    if (!item) return false
+
+    try {
+      const updated = await likeWishlistItem(apiBase, item.id, locale.value)
+      items.value = items.value.map(entry => (entry.id === updated.id ? updated : entry))
+      return true
+    } catch {
+      return false
+    }
+  }
+
   function rename(pokemonId: number, nickname: string): void {
     const { [pokemonId]: _previous, ...others } = nicknames.value
     const cleanName = nickname.trim()
@@ -127,6 +141,7 @@ export function useWishlist(): Wishlist {
     has,
     add,
     remove,
+    like,
     rename,
     displayName,
     setShowPrenoms,
