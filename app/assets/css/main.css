@@ -491,9 +491,25 @@ main {
   font-weight: 700;
 }
 
+.empty-action {
+  margin-top: 1rem;
+}
+
+.page-error {
+  margin: 0 0 1.5rem;
+}
+
+.wishlist-meter {
+  color: var(--grey);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
 /* Le seul mouvement de la page répond à une action : la carte arrive, ou elle part. */
 .card-enter-active {
-  transition: transform 240ms cubic-bezier(0.2, 1.4, 0.4, 1), opacity 120ms;
+  transition:
+    transform 240ms cubic-bezier(0.2, 1.4, 0.4, 1),
+    opacity 120ms;
 }
 
 .card-leave-active {

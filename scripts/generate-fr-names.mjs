@@ -3,7 +3,8 @@
 // Usage : node scripts/generate-fr-names.mjs
 import { writeFile } from 'node:fs/promises'
 
-const CSV_URL = 'https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon_species_names.csv'
+const CSV_URL =
+  'https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon_species_names.csv'
 const FRENCH_LANGUAGE_ID = '5'
 
 const response = await fetch(CSV_URL)
@@ -17,5 +18,8 @@ for (const line of (await response.text()).split('\n').slice(1)) {
 
 if (names.includes(undefined)) throw new Error('Il manque des noms français dans le fichier source')
 
-await writeFile(new URL('../app/data/pokemon-fr.json', import.meta.url), `${JSON.stringify(names)}\n`)
+await writeFile(
+  new URL('../app/data/pokemon-fr.json', import.meta.url),
+  `${JSON.stringify(names)}\n`,
+)
 console.log(`${names.length} noms enregistrés`)

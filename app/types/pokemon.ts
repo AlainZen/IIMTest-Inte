@@ -1,21 +1,35 @@
-export type PokemonType
-  = | 'normal' | 'fire' | 'water' | 'electric' | 'grass' | 'ice'
-    | 'fighting' | 'poison' | 'ground' | 'flying' | 'psychic' | 'bug'
-    | 'rock' | 'ghost' | 'dragon' | 'dark' | 'steel' | 'fairy'
+export type PokemonType =
+  | 'normal'
+  | 'fire'
+  | 'water'
+  | 'electric'
+  | 'grass'
+  | 'ice'
+  | 'fighting'
+  | 'poison'
+  | 'ground'
+  | 'flying'
+  | 'psychic'
+  | 'bug'
+  | 'rock'
+  | 'ghost'
+  | 'dragon'
+  | 'dark'
+  | 'steel'
+  | 'fairy'
 
 // Un Pokémon tel que l'application l'utilise, avec son nom français.
 export interface Pokemon {
   id: number
-  speciesId: number
   name: string
   types: PokemonType[]
   image: string | null
 }
 
-// Une entrée de la wishlist : le Pokémon, plus ce que l'utilisateur y a ajouté.
+// Une entrée de la wishlist, telle que l'API Hono la garde en base.
 export interface WishlistItem {
+  id: number
   pokemon: Pokemon
-  nickname?: string
   addedAt: string
 }
 
@@ -26,7 +40,7 @@ export interface PokedexEntry {
   image: string
 }
 
-// La partie de la réponse de GET /pokemon/{id} dont l'application a besoin.
+// La partie de la réponse de GET /pokemon/{id} de PokeAPI dont l'application a besoin.
 export interface ApiPokemon {
   id: number
   name: string
@@ -36,4 +50,14 @@ export interface ApiPokemon {
     front_default: string | null
     other?: { 'official-artwork'?: { front_default: string | null } }
   }
+}
+
+// Une entrée telle que l'API Hono l'envoie.
+export interface ApiWishlistItem {
+  id: number
+  pokemonId: number
+  name: string
+  types: PokemonType[]
+  image: string | null
+  addedAt: string
 }

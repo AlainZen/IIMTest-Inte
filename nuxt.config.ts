@@ -1,15 +1,25 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint'],
-  // La liste vit dans le localStorage, qui n'existe que dans le navigateur :
-  // le rendu serveur n'apporterait rien ici et afficherait une liste vide au chargement.
+  // L'application tourne dans le navigateur : elle y lit ses préférences et y appelle l'API.
   ssr: false,
   devtools: { enabled: true },
   app: {
     head: {
-      title: 'Mon Pokédex',
+      title: 'PokéWishlist',
       htmlAttrs: { lang: 'fr' },
-      meta: [{ name: 'description', content: 'Cherche des Pokémon et garde ta liste dans ton navigateur.' }],
+      meta: [
+        {
+          name: 'description',
+          content: 'Choisis les 6 Pokémon que tu veux capturer.',
+        },
+      ],
+    },
+  },
+  runtimeConfig: {
+    public: {
+      // Se règle avec la variable NUXT_PUBLIC_API_BASE.
+      apiBase: 'http://localhost:3001',
     },
   },
   css: [
@@ -19,4 +29,8 @@ export default defineNuxtConfig({
     '~/assets/css/main.css',
   ],
   compatibilityDate: '2025-07-15',
+  typescript: {
+    // Vérifie aussi les types des tests.
+    tsConfig: { include: ['../tests/**/*.ts'] },
+  },
 })

@@ -8,7 +8,7 @@ const { showPrenoms, setShowPrenoms } = useWishlist()
       type="checkbox"
       :checked="showPrenoms"
       @change="setShowPrenoms(($event.target as HTMLInputElement).checked)"
-    >
+    />
     Afficher les prénoms
   </label>
 </template>
