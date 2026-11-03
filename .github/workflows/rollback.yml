@@ -53,6 +53,9 @@ jobs:
           cache-dependency-path: restored/package-lock.json
       - name: Remettre la version sur Vercel
         working-directory: restored
+        env:
+          # Hors de Vercel, Nuxt ne devine pas la cible : sans ce réglage, il construit un serveur Node.
+          NITRO_PRESET: vercel
         run: |
           npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
           npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"

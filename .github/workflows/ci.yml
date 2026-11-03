@@ -203,6 +203,8 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      # Hors de Vercel, Nuxt ne devine pas la cible : sans ce réglage, il construit un serveur Node.
+      NITRO_PRESET: vercel
     steps:
       - name: Signaler si les secrets Vercel manquent
         if: env.VERCEL_TOKEN == ''
