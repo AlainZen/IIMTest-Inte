@@ -31,6 +31,7 @@ export function toWishlistItem(item: ApiWishlistItem): WishlistItem {
   return {
     id: item.id,
     addedAt: item.addedAt,
+    likes: item.likes,
     pokemon: { id: item.pokemonId, name: item.name, types: item.types, image: item.image },
   }
 }
@@ -74,4 +75,18 @@ export async function deleteWishlistItem(
 
   // Un 404 veut dire que l'entrée n'existe déjà plus : c'est le résultat voulu.
   if (!response.ok && response.status !== 404) throw await toApiError(response)
+}
+
+export async function likeWishlistItem(
+  baseUrl: string,
+  id: number,
+  locale: Locale,
+): Promise<WishlistItem> {
+  const response = await fetch(`${baseUrl}/wishlist/${id}/like`, {
+    method: 'POST',
+    headers: languageHeader(locale),
+  })
+  if (!response.ok) throw await toApiError(response)
+
+  return toWishlistItem((await response.json()) as ApiWishlistItem)
 }

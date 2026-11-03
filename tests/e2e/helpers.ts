@@ -37,6 +37,14 @@ export async function namesInApi(request: APIRequestContext): Promise<string[]> 
   return items.map(item => item.name)
 }
 
+export async function likesInApi(request: APIRequestContext): Promise<Record<number, number>> {
+  const response = await request.get(`${API_URL}/wishlist`)
+  await expectOk(response, 'Lecture de la wishlist')
+  const items = (await response.json()) as { pokemonId: number; likes: number }[]
+
+  return Object.fromEntries(items.map(item => [item.pokemonId, item.likes]))
+}
+
 export const MOCK_POKEAPI_URL = 'http://localhost:3002'
 
 // Seule PokeAPI, un service extérieur, est simulée. Le front, Hono et PostgreSQL sont réels.

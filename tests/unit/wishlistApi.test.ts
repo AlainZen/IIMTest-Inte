@@ -4,6 +4,7 @@ import {
   createWishlistItem,
   deleteWishlistItem,
   fetchWishlist,
+  likeWishlistItem,
   WishlistApiError,
 } from '~/utils/wishlistApi'
 
@@ -15,6 +16,7 @@ const API_ITEM: ApiWishlistItem = {
   name: 'Pikachu',
   types: ['electric'],
   image: 'pikachu.png',
+  likes: 2,
   addedAt: '2026-11-03T10:00:00.000Z',
 }
 
@@ -38,7 +40,7 @@ describe('fetchWishlist', () => {
     respondWith(200, [API_ITEM])
 
     await expect(fetchWishlist(BASE_URL, 'fr')).resolves.toEqual([
-      { id: 7, addedAt: API_ITEM.addedAt, pokemon: PIKACHU },
+      { id: 7, addedAt: API_ITEM.addedAt, likes: 2, pokemon: PIKACHU },
     ])
     expect(fetchMock).toHaveBeenCalledExactlyOnceWith(`${BASE_URL}/wishlist`, {
       headers: { 'Accept-Language': 'fr' },
@@ -120,5 +122,23 @@ describe('deleteWishlistItem', () => {
     respondWith(500, { code: 'server_error', error: 'Panne' })
 
     await expect(deleteWishlistItem(BASE_URL, 7, 'fr')).rejects.toBeInstanceOf(WishlistApiError)
+  })
+})
+
+describe('likeWishlistItem', () => {
+  it('appelle POST /wishlist/:id/like et renvoie le nouveau total', async () => {
+    respondWith(200, { ...API_ITEM, likes: 3 })
+
+    await expect(likeWishlistItem(BASE_URL, 7, 'de')).resolves.toMatchObject({ id: 7, likes: 3 })
+    expect(fetchMock).toHaveBeenCalledExactlyOnceWith(`${BASE_URL}/wishlist/7/like`, {
+      method: 'POST',
+      headers: { 'Accept-Language': 'de' },
+    })
+  })
+
+  it('lance une erreur si l’entrée n’existe plus', async () => {
+    respondWith(404, { code: 'not_found', error: 'Aucune entrée' })
+
+    await expect(likeWishlistItem(BASE_URL, 7, 'fr')).rejects.toBeInstanceOf(WishlistApiError)
   })
 })

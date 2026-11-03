@@ -30,6 +30,7 @@ export interface Pokemon {
 export interface WishlistItem {
   id: number
   pokemon: Pokemon
+  likes: number
   addedAt: string
 }
 
@@ -62,6 +63,7 @@ export interface ApiWishlistItem {
   name: string
   types: PokemonType[]
   image: string | null
+  likes: number
   addedAt: string
 }
 

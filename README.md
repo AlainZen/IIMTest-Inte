@@ -1,5 +1,8 @@
 # PokéWishlist
 
+[![CI](https://github.com/AlainZen/IIMTest-Inte/actions/workflows/ci.yml/badge.svg)](https://github.com/AlainZen/IIMTest-Inte/actions/workflows/ci.yml)
+[![Couverture des tests](https://raw.githubusercontent.com/AlainZen/IIMTest-Inte/badges/coverage.svg)](https://github.com/AlainZen/IIMTest-Inte/actions/workflows/ci.yml)
+
 Application Nuxt pour choisir les 6 Pokémon à capturer. Elle cherche les Pokémon avec [PokeAPI](https://pokeapi.co) et garde la wishlist dans l'[API Hono](https://github.com/AlainZen/IIMTest-API), qui l'enregistre dans PostgreSQL.
 
 - **Ma wishlist** (`/`) : cherche, ajoute, renomme ou supprime un Pokémon.
@@ -50,9 +53,38 @@ Playwright construit et démarre le front et l'API, qui doit être dans `../IIMT
 
 ## Intégration continue
 
-GitHub Actions lance huit contrôles séparés à chaque push : lint, Prettier, clés de traduction, typecheck, Vitest et couverture, build, tests e2e, audit de sécurité. Le résultat apparaît aussi sur la pull request de la branche.
+GitHub Actions lance neuf contrôles séparés à chaque push : lint, Prettier, clés de traduction, typecheck, Vitest et couverture, build, site statique, tests e2e, audit de sécurité. Le résultat apparaît aussi sur la pull request de la branche.
 
-Sur `main`, si tous les contrôles sont verts, un dernier job déploie le site sur Vercel. Il a besoin des secrets GitHub `VERCEL_TOKEN`, `VERCEL_ORG_ID` et `VERCEL_PROJECT_ID`, et s'ignore tant qu'ils manquent.
+Sur `main`, si tous les contrôles sont verts, deux derniers jobs mettent le site en ligne. Chacun s'ignore tant que ses secrets GitHub manquent :
+
+| Job              | Résultat                                                 | Secrets                                                   |
+| ---------------- | -------------------------------------------------------- | --------------------------------------------------------- |
+| Vercel           | Le site rendu par le serveur (SSR)                       | `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`      |
+| S3 et CloudFront | Le site statique (SSG) : generate, sync S3, invalidation | `AWS_ROLE_ARN`, `S3_BUCKET`, `CLOUDFRONT_DISTRIBUTION_ID` |
+
+Les adresses publiques sont des variables GitHub : `API_URL`, `SSR_URL` et `SSG_URL`. Le job **Contrôle de la production** s'en sert après le déploiement :
+
+```bash
+API_URL=... SSR_URL=... SSG_URL=... npm run smoke
+SSR_URL=... SSG_URL=... npm run check:seo
+```
+
+`smoke` vérifie l'API, une page SSR, une page SSG, les codes HTTP et le CORS. `check:seo` lit le HTML sans JavaScript et compare le titre et le contenu des fiches en SSR et en SSG. Si l'un des deux échoue, la CD passe au rouge.
+
+Chaque push affiche le taux de couverture dans le résumé du run et garde le rapport HTML dans l'artifact `rapport-couverture`. Un push sur `main` met aussi à jour le badge ci-dessus.
+
+## Revenir à la version précédente
+
+Dans l'onglet Actions, lance le workflow **Rollback** sur `main`. Sans commit précisé, il restaure le dernier commit de `main` dont la CI et la CD sont passées, en dehors de la version en ligne, sur Vercel et sur S3, puis contrôle la production. Le prochain merge sur `main` redéploie `main`.
+
+## Site statique
+
+```bash
+npm run generate
+npm run check:static
+```
+
+`nuxt generate` écrit le site dans `.output/public`, avec un fichier HTML pour chacune des 1025 fiches. `check:static` échoue s'il manque une fiche ou si l'une d'elles est vide. Le bucket S3 est configuré en site web, avec `index.html` comme page d'accueil et `404.html` comme page d'erreur.
 
 ## Noms des Pokémon
 

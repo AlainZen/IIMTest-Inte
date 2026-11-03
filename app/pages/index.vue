@@ -2,7 +2,7 @@
 import type { Pokemon, WishlistItem } from '~/types/pokemon'
 
 const { t, locale } = useLanguage()
-const { items, status, isFull, load, has, add, remove, rename, displayName } = useWishlist()
+const { items, status, isFull, load, has, add, remove, like, rename, displayName } = useWishlist()
 
 useHead({ title: () => t('nav.wishlist') })
 
@@ -12,6 +12,16 @@ async function addFromSearch(pokemon: Pokemon): Promise<void> {
   actionError.value = ''
   const outcome = await add(pokemon)
   if (!outcome.ok) actionError.value = outcome.message
+}
+
+async function likeItem(item: WishlistItem): Promise<void> {
+  actionError.value = ''
+  const liked = await like(item.pokemon.id)
+  if (!liked) {
+    actionError.value = t('wishlist.likeFailed', {
+      name: localizedName(item.pokemon, locale.value),
+    })
+  }
 }
 
 async function removeItem(item: WishlistItem): Promise<void> {
@@ -63,6 +73,7 @@ async function removeItem(item: WishlistItem): Promise<void> {
           :key="item.pokemon.id"
           :item="item"
           :title="displayName(item)"
+          @like="likeItem(item)"
           @remove="removeItem(item)"
           @rename="rename(item.pokemon.id, $event)"
         />
