@@ -51,9 +51,23 @@ export async function mockPokeApi(page: Page): Promise<void> {
             species: { url: `https://pokeapi.co/api/v2/pokemon-species/${id}/` },
             types: [{ type: { name: 'fire' } }],
             sprites: { front_default: null },
+            height: 4,
+            weight: 60,
+            abilities: [{ ability: { name: 'lightning-rod' } }],
+            stats: [
+              { base_stat: 35, stat: { name: 'hp' } },
+              { base_stat: 90, stat: { name: 'speed' } },
+            ],
           },
         })
       : route.fulfill({ status: 404, body: 'Not Found' })
+  })
+}
+
+// La plupart des tests lisent l'interface en français. L'anglais par défaut a ses propres tests.
+export async function useFrench(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    localStorage.setItem('pokewishlist:locale', JSON.stringify('fr'))
   })
 }
 

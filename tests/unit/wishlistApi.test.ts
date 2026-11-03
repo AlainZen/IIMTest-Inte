@@ -37,16 +37,18 @@ describe('fetchWishlist', () => {
   it('appelle GET /wishlist et convertit les entrées', async () => {
     respondWith(200, [API_ITEM])
 
-    await expect(fetchWishlist(BASE_URL)).resolves.toEqual([
+    await expect(fetchWishlist(BASE_URL, 'fr')).resolves.toEqual([
       { id: 7, addedAt: API_ITEM.addedAt, pokemon: PIKACHU },
     ])
-    expect(fetchMock).toHaveBeenCalledExactlyOnceWith(`${BASE_URL}/wishlist`)
+    expect(fetchMock).toHaveBeenCalledExactlyOnceWith(`${BASE_URL}/wishlist`, {
+      headers: { 'Accept-Language': 'fr' },
+    })
   })
 
   it('lance une erreur si l’API répond 500', async () => {
     respondWith(500, { code: 'server_error', error: 'Panne' })
 
-    await expect(fetchWishlist(BASE_URL)).rejects.toMatchObject({
+    await expect(fetchWishlist(BASE_URL, 'fr')).rejects.toMatchObject({
       code: 'server_error',
       message: 'Panne',
     })
@@ -55,7 +57,7 @@ describe('fetchWishlist', () => {
   it('gère une erreur sans corps JSON', async () => {
     fetchMock.mockResolvedValue(new Response('Bad Gateway', { status: 502 }))
 
-    await expect(fetchWishlist(BASE_URL)).rejects.toMatchObject({
+    await expect(fetchWishlist(BASE_URL, 'fr')).rejects.toMatchObject({
       code: 'server_error',
       message: "L'API a répondu 502",
     })
@@ -66,7 +68,7 @@ describe('createWishlistItem', () => {
   it('envoie le Pokémon en POST et renvoie l’entrée créée', async () => {
     respondWith(201, API_ITEM)
 
-    await expect(createWishlistItem(BASE_URL, PIKACHU)).resolves.toMatchObject({
+    await expect(createWishlistItem(BASE_URL, PIKACHU, 'fr')).resolves.toMatchObject({
       id: 7,
       pokemon: PIKACHU,
     })
@@ -74,6 +76,10 @@ describe('createWishlistItem', () => {
     const [url, options] = fetchMock.mock.calls[0] ?? []
     expect(url).toBe(`${BASE_URL}/wishlist`)
     expect(options?.method).toBe('POST')
+    expect(options?.headers).toEqual({
+      'Content-Type': 'application/json',
+      'Accept-Language': 'fr',
+    })
     expect(JSON.parse(String(options?.body))).toEqual({
       pokemonId: 25,
       name: 'Pikachu',
@@ -85,7 +91,7 @@ describe('createWishlistItem', () => {
   it.each(['duplicate', 'full'])('transmet le refus %s de l’API', async code => {
     respondWith(409, { code, error: 'Refusé' })
 
-    const error = await createWishlistItem(BASE_URL, PIKACHU).catch((cause: unknown) => cause)
+    const error = await createWishlistItem(BASE_URL, PIKACHU, 'fr').catch((cause: unknown) => cause)
 
     expect(error).toBeInstanceOf(WishlistApiError)
     expect(error).toMatchObject({ code })
@@ -96,22 +102,23 @@ describe('deleteWishlistItem', () => {
   it('appelle DELETE /wishlist/:id', async () => {
     respondWith(204)
 
-    await deleteWishlistItem(BASE_URL, 7)
+    await deleteWishlistItem(BASE_URL, 7, 'fr')
 
     expect(fetchMock).toHaveBeenCalledExactlyOnceWith(`${BASE_URL}/wishlist/7`, {
       method: 'DELETE',
+      headers: { 'Accept-Language': 'fr' },
     })
   })
 
   it('accepte un 404 : l’entrée n’existe déjà plus', async () => {
     respondWith(404, { code: 'not_found', error: 'Absent' })
 
-    await expect(deleteWishlistItem(BASE_URL, 7)).resolves.toBeUndefined()
+    await expect(deleteWishlistItem(BASE_URL, 7, 'fr')).resolves.toBeUndefined()
   })
 
   it('lance une erreur si l’API répond 500', async () => {
     respondWith(500, { code: 'server_error', error: 'Panne' })
 
-    await expect(deleteWishlistItem(BASE_URL, 7)).rejects.toBeInstanceOf(WishlistApiError)
+    await expect(deleteWishlistItem(BASE_URL, 7, 'fr')).rejects.toBeInstanceOf(WishlistApiError)
   })
 })

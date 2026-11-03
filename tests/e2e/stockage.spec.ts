@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { clearWishlist, mockPokeApi, searchAndAdd } from './helpers'
+import { clearWishlist, mockPokeApi, searchAndAdd, useFrench } from './helpers'
 
 const NICKNAMES_KEY = 'pokewishlist:nicknames'
 const PRENOMS_KEY = 'pokewishlist:show-prenoms'
@@ -17,6 +17,7 @@ for (const [label, value] of CORRUPTED_VALUES) {
     page.on('pageerror', error => crashes.push(error))
     await clearWishlist(request)
     await mockPokeApi(page)
+    await useFrench(page)
 
     await page.goto('/')
     await page.evaluate(

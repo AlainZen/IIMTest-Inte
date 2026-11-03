@@ -21,17 +21,11 @@ interface Wishlist {
   setShowPrenoms: (value: boolean) => void
 }
 
-const ADD_REFUSALS: Record<string, (name: string) => string> = {
-  duplicate: name => `${name} est déjà dans ta wishlist.`,
-  full: () => `Ta wishlist est pleine : retire un Pokémon pour en ajouter un autre.`,
-}
-
-function refusalMessage(code: string, name: string): string {
-  return ADD_REFUSALS[code]?.(name) ?? `${name} n'a pas été ajouté : l'API ne répond pas.`
-}
+const API_REFUSALS = ['duplicate', 'full']
 
 export function useWishlist(): Wishlist {
   const apiBase = useRuntimeConfig().public.apiBase
+  const { t, locale } = useLanguage()
 
   // useState partage les mêmes données entre toutes les pages.
   const items = useState<WishlistItem[]>('wishlist', () => [])
@@ -44,7 +38,7 @@ export function useWishlist(): Wishlist {
   async function load(): Promise<void> {
     status.value = 'loading'
     try {
-      items.value = await fetchWishlist(apiBase)
+      items.value = await fetchWishlist(apiBase, locale.value)
       status.value = 'ready'
     } catch {
       status.value = 'error'
@@ -56,23 +50,24 @@ export function useWishlist(): Wishlist {
   }
 
   async function add(pokemon: Pokemon): Promise<AddOutcome> {
+    const name = localizedName(pokemon, locale.value)
     const rule = addPokemon(
       items.value.map(item => item.pokemon),
       pokemon,
     )
-    if (!rule.ok) return { ok: false, message: refusalMessage(rule.reason, pokemon.name) }
+    if (!rule.ok) return { ok: false, message: t(`wishlist.${rule.reason}`, { name }) }
 
     try {
-      const item = await createWishlistItem(apiBase, pokemon)
+      const item = await createWishlistItem(apiBase, pokemon, locale.value)
       items.value = [...items.value, item]
       return { ok: true }
     } catch (error) {
-      const code = error instanceof WishlistApiError ? error.code : 'server_error'
-
-      // L'API a refusé : la liste affichée n'est plus à jour, on la relit.
-      if (code in ADD_REFUSALS) await load()
-
-      return { ok: false, message: refusalMessage(code, pokemon.name) }
+      if (error instanceof WishlistApiError && API_REFUSALS.includes(error.code)) {
+        // L'API a refusé : la liste affichée n'est plus à jour. Son message suit la langue choisie.
+        await load()
+        return { ok: false, message: error.message }
+      }
+      return { ok: false, message: t('wishlist.addFailed', { name }) }
     }
   }
 
@@ -81,7 +76,7 @@ export function useWishlist(): Wishlist {
     if (!item) return true
 
     try {
-      await deleteWishlistItem(apiBase, item.id)
+      await deleteWishlistItem(apiBase, item.id, locale.value)
     } catch {
       return false
     }
@@ -103,8 +98,11 @@ export function useWishlist(): Wishlist {
   }
 
   function displayName(item: WishlistItem): string {
-    const { id, name } = item.pokemon
-    return nicknames.value[id] ?? (showPrenoms.value ? prenomOf(id) : name)
+    const { pokemon } = item
+    return (
+      nicknames.value[pokemon.id] ??
+      (showPrenoms.value ? prenomOf(pokemon.id) : localizedName(pokemon, locale.value))
+    )
   }
 
   function setShowPrenoms(value: boolean): void {

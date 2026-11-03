@@ -4,8 +4,11 @@ Application Nuxt pour choisir les 6 Pokémon à capturer. Elle cherche les Poké
 
 - **Ma wishlist** (`/`) : cherche, ajoute, renomme ou supprime un Pokémon.
 - **Liste complète** (`/liste-complete`) : parcours tous les Pokémon, filtre-les et ajoute ceux que tu veux.
+- **Fiche** (`/pokemon/[name]`) : les informations d'un Pokémon, lues sur PokeAPI, à partir de son nom ou de son numéro.
 
-La règle des 6 Pokémon est dans `app/utils/wishlistRules.ts`, les types partagés dans `app/types/pokemon.ts`. Le `localStorage` ne garde que les surnoms et le réglage des prénoms.
+L'interface existe en anglais (par défaut), français, espagnol et allemand. Les traductions sont dans `app/locales`.
+
+La règle des 6 Pokémon est dans `app/utils/wishlistRules.ts`, les types partagés dans `app/types/pokemon.ts`. Le `localStorage` ne garde que la langue, les surnoms et le réglage des prénoms.
 
 ## Lancer le projet
 
@@ -23,6 +26,7 @@ L'application tourne sur `http://localhost:3000` et appelle l'API sur `http://lo
 ```bash
 npm run lint
 npm run format:check
+npm run check:locales
 npm run typecheck
 npm run test:unit
 npm run test:coverage
@@ -42,12 +46,12 @@ Playwright construit et démarre le front et l'API, qui doit être dans `../IIMT
 
 ## Intégration continue
 
-GitHub Actions lance sept contrôles séparés à chaque push : lint, Prettier, typecheck, Vitest et couverture, build, tests e2e, audit de sécurité. Le résultat apparaît aussi sur la pull request de la branche.
+GitHub Actions lance huit contrôles séparés à chaque push : lint, Prettier, clés de traduction, typecheck, Vitest et couverture, build, tests e2e, audit de sécurité. Le résultat apparaît aussi sur la pull request de la branche.
 
-## Noms français
+## Noms des Pokémon
 
-PokeAPI ne cherche que par numéro ou par nom anglais. `app/data/pokemon-fr.json` fait le lien entre les noms français et les numéros. Pour le régénérer :
+PokeAPI ne cherche que par numéro ou par nom anglais. `app/data/pokemon-names.json` fait le lien entre les noms en quatre langues et les numéros. Pour le régénérer :
 
 ```bash
-node scripts/generate-fr-names.mjs
+node scripts/generate-names.mjs
 ```

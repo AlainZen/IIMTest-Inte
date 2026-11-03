@@ -7,11 +7,10 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'PokéWishlist',
-      htmlAttrs: { lang: 'fr' },
       meta: [
         {
           name: 'description',
-          content: 'Choisis les 6 Pokémon que tu veux capturer.',
+          content: 'Choose the 6 Pokémon you want to catch.',
         },
       ],
     },

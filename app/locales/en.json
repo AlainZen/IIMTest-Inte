@@ -1,0 +1,96 @@
+{
+  "nav": {
+    "wishlist": "My wishlist",
+    "pokedex": "Full list",
+    "pages": "Pages",
+    "language": "Language"
+  },
+  "common": {
+    "retry": "Try again",
+    "prenoms": "Show first names"
+  },
+  "wishlist": {
+    "empty": "Your wishlist is empty. Search for a Pokémon or browse the {link}.",
+    "emptyLink": "full list",
+    "loading": "Loading your wishlist…",
+    "apiDown": "The API is not responding. Check that it is running, then try again.",
+    "addFailed": "{name} was not added: the API is not responding.",
+    "removeFailed": "{name} was not removed: the API is not responding.",
+    "duplicate": "{name} is already in your wishlist.",
+    "full": "Your wishlist is full: remove a Pokémon to add another one."
+  },
+  "search": {
+    "label": "Pokémon name or number",
+    "placeholder": "Charmander or 150",
+    "submit": "Search",
+    "searching": "Searching…",
+    "notFound": "No Pokémon found for “{query}”. Check the spelling or try its number.",
+    "pokeapiDown": "PokeAPI is not responding. Check your connection and search again.",
+    "add": "Add to my wishlist",
+    "already": "Already in your wishlist",
+    "full": "Wishlist full"
+  },
+  "card": {
+    "rename": "Rename",
+    "save": "Save",
+    "newName": "New name for {name}",
+    "delete": "Delete",
+    "deleteAria": "Delete {name}"
+  },
+  "pokemon": {
+    "number": "No. {id}"
+  },
+  "pokedex": {
+    "filterLabel": "Filter the list",
+    "filterPlaceholder": "Filter by name or number",
+    "meter": "In your wishlist: {count}/{max}",
+    "noMatch": "No Pokémon matches “{filter}”. Try another name.",
+    "pokeapiDown": "{name} was not added: PokeAPI is not responding.",
+    "add": "Add",
+    "addAria": "Add {name}",
+    "remove": "Remove",
+    "removeAria": "Remove {name}",
+    "full": "List full",
+    "wait": "Please wait…"
+  },
+  "sheet": {
+    "back": "Back to the full list",
+    "loading": "Loading the Pokémon…",
+    "notFound": "No Pokémon named “{name}”.",
+    "notFoundHelp": "Check the address or look for it in the full list.",
+    "pokeapiDown": "PokeAPI is not responding. Check your connection, then try again.",
+    "height": "Height",
+    "weight": "Weight",
+    "abilities": "Abilities",
+    "stats": "Base stats"
+  },
+  "stats": {
+    "hp": "HP",
+    "attack": "Attack",
+    "defense": "Defense",
+    "special-attack": "Special attack",
+    "special-defense": "Special defense",
+    "speed": "Speed"
+  },
+  "types": {
+    "normal": "Normal",
+    "fire": "Fire",
+    "water": "Water",
+    "electric": "Electric",
+    "grass": "Grass",
+    "ice": "Ice",
+    "fighting": "Fighting",
+    "poison": "Poison",
+    "ground": "Ground",
+    "flying": "Flying",
+    "psychic": "Psychic",
+    "bug": "Bug",
+    "rock": "Rock",
+    "ghost": "Ghost",
+    "dragon": "Dragon",
+    "dark": "Dark",
+    "steel": "Steel",
+    "fairy": "Fairy",
+    "unknown": "Unknown"
+  }
+}

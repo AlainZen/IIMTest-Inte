@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { Pokemon } from '~/types/pokemon'
+import type { Pokemon, WishlistItem } from '~/types/pokemon'
 
-useHead({ title: 'Ma wishlist' })
-
+const { t, locale } = useLanguage()
 const { items, status, isFull, load, has, add, remove, rename, displayName } = useWishlist()
+
+useHead({ title: () => t('nav.wishlist') })
 
 const actionError = ref<string>('')
 
@@ -13,10 +14,14 @@ async function addFromSearch(pokemon: Pokemon): Promise<void> {
   if (!outcome.ok) actionError.value = outcome.message
 }
 
-async function removeItem(pokemonId: number, name: string): Promise<void> {
+async function removeItem(item: WishlistItem): Promise<void> {
   actionError.value = ''
-  const removed = await remove(pokemonId)
-  if (!removed) actionError.value = `${name} n'a pas été retiré : l'API ne répond pas.`
+  const removed = await remove(item.pokemon.id)
+  if (!removed) {
+    actionError.value = t('wishlist.removeFailed', {
+      name: localizedName(item.pokemon, locale.value),
+    })
+  }
 }
 </script>
 
@@ -27,7 +32,8 @@ async function removeItem(pokemonId: number, name: string): Promise<void> {
     <section class="list" aria-labelledby="list-title">
       <div class="list-head">
         <h1 id="list-title">
-          Ma wishlist <span class="list-count">({{ items.length }}/{{ MAX_WISHLIST_SIZE }})</span>
+          {{ t('nav.wishlist') }}
+          <span class="list-count">({{ items.length }}/{{ MAX_WISHLIST_SIZE }})</span>
         </h1>
         <PrenomsToggle />
       </div>
@@ -37,16 +43,19 @@ async function removeItem(pokemonId: number, name: string): Promise<void> {
       </p>
 
       <div v-if="status === 'error'" class="empty" role="alert">
-        <p>L'API ne répond pas. Vérifie qu'elle est lancée, puis réessaie.</p>
-        <button type="button" class="button-primary empty-action" @click="load">Réessayer</button>
+        <p>{{ t('wishlist.apiDown') }}</p>
+        <button type="button" class="button-primary empty-action" @click="load">
+          {{ t('common.retry') }}
+        </button>
       </div>
 
-      <p v-else-if="status === 'loading'" class="empty">Chargement de ta wishlist…</p>
+      <p v-else-if="status === 'loading'" class="empty">{{ t('wishlist.loading') }}</p>
 
-      <p v-else-if="items.length === 0" class="empty">
-        Ta wishlist est vide. Cherche un Pokémon ou parcours la
-        <NuxtLink to="/liste-complete">liste complète</NuxtLink>.
-      </p>
+      <i18n-t v-else-if="items.length === 0" keypath="wishlist.empty" tag="p" class="empty">
+        <template #link>
+          <NuxtLink to="/liste-complete">{{ t('wishlist.emptyLink') }}</NuxtLink>
+        </template>
+      </i18n-t>
 
       <TransitionGroup v-else name="card" tag="div" class="grid">
         <PokemonCard
@@ -54,7 +63,7 @@ async function removeItem(pokemonId: number, name: string): Promise<void> {
           :key="item.pokemon.id"
           :item="item"
           :title="displayName(item)"
-          @remove="removeItem(item.pokemon.id, item.pokemon.name)"
+          @remove="removeItem(item)"
           @rename="rename(item.pokemon.id, $event)"
         />
       </TransitionGroup>

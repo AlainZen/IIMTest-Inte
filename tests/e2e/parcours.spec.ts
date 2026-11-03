@@ -6,11 +6,13 @@ import {
   mockPokeApi,
   namesInApi,
   searchAndAdd,
+  useFrench,
 } from './helpers'
 
 test.beforeEach(async ({ page, request }) => {
   await clearWishlist(request)
   await mockPokeApi(page)
+  await useFrench(page)
   await page.goto('/')
   await expect(page.getByText('Ta wishlist est vide')).toBeVisible()
 })
@@ -20,7 +22,7 @@ test.describe('ajout', () => {
     await searchAndAdd(page, 'salameche')
 
     await expect(page.getByRole('heading', { name: 'Salamèche' })).toBeVisible()
-    expect(await namesInApi(request)).toEqual(['Salamèche'])
+    expect(await namesInApi(request)).toEqual(['Charmander'])
   })
 
   test('la wishlist reste après un rafraîchissement', async ({ page }) => {
@@ -37,7 +39,7 @@ test.describe('ajout', () => {
 
     await page.reload()
 
-    await expect(page.getByRole('heading', { name: 'Pokémon 25' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Pikachu' })).toBeVisible()
   })
 })
 
@@ -62,7 +64,7 @@ test.describe('doublon', () => {
 
     await searchAndAdd(page, 'salameche')
 
-    await expect(page.getByRole('alert')).toContainText('déjà dans ta wishlist')
+    await expect(page.getByRole('alert')).toContainText('déjà dans la wishlist')
     await expect(page.getByTestId('pokemon-card')).toHaveCount(1)
     expect(await namesInApi(request)).toHaveLength(1)
   })
@@ -97,7 +99,7 @@ test.describe('limite de 6', () => {
 
     await page.getByRole('button', { name: 'Ajouter Carapuce', exact: true }).click()
 
-    await expect(page.getByRole('alert')).toContainText('Ta wishlist est pleine')
+    await expect(page.getByRole('alert')).toContainText('La wishlist est pleine')
     await expect(page.getByText('Dans ta wishlist : 6/6')).toBeVisible()
     expect(await namesInApi(request)).toHaveLength(6)
   })

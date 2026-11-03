@@ -34,6 +34,17 @@ jobs:
       - run: npm ci
       - run: npm run format:check
 
+  locales:
+    name: Clés de traduction
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm run check:locales
+
   typecheck:
     name: Typecheck
     runs-on: ubuntu-latest

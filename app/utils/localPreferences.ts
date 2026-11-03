@@ -1,3 +1,7 @@
+import type { Locale } from '~/utils/locales'
+import { DEFAULT_LOCALE, isLocale } from '~/utils/locales'
+
+export const LOCALE_KEY = 'pokewishlist:locale'
 export const NICKNAMES_KEY = 'pokewishlist:nicknames'
 export const PRENOMS_KEY = 'pokewishlist:show-prenoms'
 
@@ -43,4 +47,13 @@ export function readShowPrenoms(): boolean {
 
 export function saveShowPrenoms(value: boolean): void {
   writeJson(PRENOMS_KEY, value)
+}
+
+export function readLocale(): Locale {
+  const saved = readJson(LOCALE_KEY)
+  return isLocale(saved) ? saved : DEFAULT_LOCALE
+}
+
+export function saveLocale(value: Locale): void {
+  writeJson(LOCALE_KEY, value)
 }

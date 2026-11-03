@@ -2,22 +2,26 @@
 import type { PokedexEntry } from '~/types/pokemon'
 import { pokedexEntries } from '~/utils/pokeapi'
 
-useHead({ title: 'Liste complète' })
-
+const { t, locale } = useLanguage()
 const { items, showPrenoms, isFull, has, add, remove } = useWishlist()
+
+useHead({ title: () => t('nav.pokedex') })
 
 const filter = ref<string>('')
 const pendingIds = ref<Set<number>>(new Set())
 const error = ref<string>('')
 
+function nameOf(entry: PokedexEntry): string {
+  return pokedexName(entry.id, locale.value)
+}
+
 function titleOf(entry: PokedexEntry): string {
-  return showPrenoms.value ? prenomOf(entry.id) : entry.name
+  return showPrenoms.value ? prenomOf(entry.id) : nameOf(entry)
 }
 
 function matches(entry: PokedexEntry, text: string): boolean {
   return (
-    String(entry.id) === text ||
-    normalize(entry.name).includes(text) ||
+    matchesPokedexEntry(entry.id, text) ||
     (showPrenoms.value && normalize(prenomOf(entry.id)).includes(text))
   )
 }
@@ -33,7 +37,7 @@ async function addEntry(entry: PokedexEntry): Promise<void> {
   try {
     pokemon = await fetchPokemon(String(entry.id))
   } catch {
-    error.value = `${entry.name} n'a pas été ajouté : PokeAPI ne répond pas.`
+    error.value = t('pokedex.pokeapiDown', { name: nameOf(entry) })
     return
   }
 
@@ -47,7 +51,7 @@ async function toggle(entry: PokedexEntry): Promise<void> {
 
   if (has(entry.id)) {
     const removed = await remove(entry.id)
-    if (!removed) error.value = `${entry.name} n'a pas été retiré : l'API ne répond pas.`
+    if (!removed) error.value = t('wishlist.removeFailed', { name: nameOf(entry) })
   } else {
     await addEntry(entry)
   }
@@ -60,12 +64,12 @@ async function toggle(entry: PokedexEntry): Promise<void> {
   <div>
     <form class="search search-sticky" role="search" @submit.prevent>
       <div class="search-bar">
-        <label class="sr-only" for="filter-input">Filtrer la liste</label>
+        <label class="sr-only" for="filter-input">{{ t('pokedex.filterLabel') }}</label>
         <input
           id="filter-input"
           v-model="filter"
           type="search"
-          placeholder="Filtrer par nom ou numéro"
+          :placeholder="t('pokedex.filterPlaceholder')"
           autocomplete="off"
         />
       </div>
@@ -75,10 +79,11 @@ async function toggle(entry: PokedexEntry): Promise<void> {
       <div class="list-head">
         <div>
           <h1 id="pokedex-title">
-            Liste complète <span class="list-count">({{ visibleEntries.length }})</span>
+            {{ t('nav.pokedex') }}
+            <span class="list-count">({{ visibleEntries.length }})</span>
           </h1>
           <p class="wishlist-meter">
-            Dans ta wishlist : {{ items.length }}/{{ MAX_WISHLIST_SIZE }}
+            {{ t('pokedex.meter', { count: items.length, max: MAX_WISHLIST_SIZE }) }}
           </p>
         </div>
         <PrenomsToggle />
@@ -89,7 +94,7 @@ async function toggle(entry: PokedexEntry): Promise<void> {
       </p>
 
       <p v-if="visibleEntries.length === 0" class="empty">
-        Aucun Pokémon ne correspond à « {{ filter }} ». Essaie un autre nom.
+        {{ t('pokedex.noMatch', { filter }) }}
       </p>
 
       <div v-else class="pokedex">
@@ -97,6 +102,7 @@ async function toggle(entry: PokedexEntry): Promise<void> {
           v-for="entry in visibleEntries"
           :key="entry.id"
           :entry="entry"
+          :name="nameOf(entry)"
           :title="titleOf(entry)"
           :in-wishlist="has(entry.id)"
           :is-full="isFull"

@@ -1,5 +1,7 @@
-import frenchNames from '~/data/pokemon-fr.json'
-import type { ApiPokemon, Pokemon, PokedexEntry } from '~/types/pokemon'
+import names from '~/data/pokemon-names.json'
+import type { ApiPokemon, Pokemon, PokemonDetails, PokedexEntry } from '~/types/pokemon'
+import type { Locale } from '~/utils/locales'
+import { LOCALES } from '~/utils/locales'
 
 const API_URL = 'https://pokeapi.co/api/v2/pokemon'
 const SPRITES_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon'
@@ -15,16 +17,43 @@ export function normalize(text: string): string {
     .replace(/\s+/g, ' ')
 }
 
-const idByFrenchName: Map<string, number> = new Map(
-  frenchNames.map((name, index): [string, number] => [normalize(name), index + 1]),
+// Le nom d'un Pokémon dans chaque langue, en minuscules et sans accent, pour la recherche.
+const searchableNames: readonly string[][] = names.en.map((_, index) =>
+  LOCALES.map(locale => normalize(names[locale][index] ?? '')),
 )
 
-// PokeAPI ne cherche que par numéro ou par nom anglais : un nom français est d'abord traduit en numéro.
+const idByName: Map<string, number> = new Map(
+  searchableNames.flatMap((list, index) => list.map((name): [string, number] => [name, index + 1])),
+)
+
+// PokeAPI ne cherche que par numéro ou par nom anglais : un nom connu est d'abord traduit en numéro.
 export function toApiKey(query: string): string {
   const text = normalize(query)
-  const id = idByFrenchName.get(text)
+  const id = idByName.get(text)
   if (id) return String(id)
   return text.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
+// Les formes spéciales, au-delà du dernier numéro, gardent le nom enregistré avec elles.
+export function localizedName(pokemon: Pick<Pokemon, 'id' | 'name'>, locale: Locale): string {
+  return names[locale][pokemon.id - 1] ?? pokemon.name
+}
+
+export function pokedexName(id: number, locale: Locale): string {
+  return names[locale][id - 1] ?? String(id)
+}
+
+export function matchesPokedexEntry(id: number, text: string): boolean {
+  return String(id) === text || (searchableNames[id - 1] ?? []).some(name => name.includes(text))
+}
+
+export function pokemonPath(id: number): string {
+  const name = names.en[id - 1]
+  return `/pokemon/${encodeURIComponent(name ? name.toLowerCase() : String(id))}`
+}
+
+export function nameSuggestions(locale: Locale): readonly string[] {
+  return names[locale]
 }
 
 export function toPokemon(data: ApiPokemon): Pokemon {
@@ -32,13 +61,24 @@ export function toPokemon(data: ApiPokemon): Pokemon {
 
   return {
     id: data.id,
-    name: frenchNames[speciesId - 1] ?? data.name,
+    name: names.en[speciesId - 1] ?? data.name,
     types: data.types.map(entry => entry.type.name),
     image: data.sprites.other?.['official-artwork']?.front_default ?? data.sprites.front_default,
   }
 }
 
-export async function fetchPokemon(query: string): Promise<Pokemon> {
+export function toPokemonDetails(data: ApiPokemon): PokemonDetails {
+  return {
+    ...toPokemon(data),
+    // PokeAPI donne la taille en décimètres et le poids en hectogrammes.
+    height: data.height / 10,
+    weight: data.weight / 10,
+    abilities: data.abilities.map(entry => entry.ability.name),
+    stats: data.stats.map(entry => ({ name: entry.stat.name, value: entry.base_stat })),
+  }
+}
+
+async function fetchApiPokemon(query: string): Promise<ApiPokemon> {
   const key = toApiKey(query)
   if (!key) throw new PokemonNotFoundError()
 
@@ -47,14 +87,19 @@ export async function fetchPokemon(query: string): Promise<Pokemon> {
   if (response.status === 404) throw new PokemonNotFoundError()
   if (!response.ok) throw new Error(`PokeAPI a répondu ${response.status}`)
 
-  return toPokemon((await response.json()) as ApiPokemon)
+  return (await response.json()) as ApiPokemon
 }
 
-// Le nom français et l'image se déduisent du numéro : la liste complète s'affiche sans 1025 appels à l'API.
-export const pokedexEntries: readonly PokedexEntry[] = frenchNames.map((name, index) => ({
+export async function fetchPokemon(query: string): Promise<Pokemon> {
+  return toPokemon(await fetchApiPokemon(query))
+}
+
+export async function fetchPokemonDetails(query: string): Promise<PokemonDetails> {
+  return toPokemonDetails(await fetchApiPokemon(query))
+}
+
+// L'image se déduit du numéro : la liste complète s'affiche sans 1025 appels à l'API.
+export const pokedexEntries: readonly PokedexEntry[] = names.en.map((_, index) => ({
   id: index + 1,
-  name,
   image: `${SPRITES_URL}/${index + 1}.png`,
 }))
-
-export const pokemonNameSuggestions: readonly string[] = frenchNames

@@ -18,7 +18,7 @@ export type PokemonType =
   | 'steel'
   | 'fairy'
 
-// Un Pokémon tel que l'application l'utilise, avec son nom français.
+// Un Pokémon tel que l'application l'utilise. Le nom affiché dépend de la langue choisie.
 export interface Pokemon {
   id: number
   name: string
@@ -36,7 +36,6 @@ export interface WishlistItem {
 // Une ligne de la liste complète : juste de quoi l'afficher, sans appel à l'API.
 export interface PokedexEntry {
   id: number
-  name: string
   image: string
 }
 
@@ -50,6 +49,10 @@ export interface ApiPokemon {
     front_default: string | null
     other?: { 'official-artwork'?: { front_default: string | null } }
   }
+  height: number
+  weight: number
+  abilities: { ability: { name: string } }[]
+  stats: { base_stat: number; stat: { name: string } }[]
 }
 
 // Une entrée telle que l'API Hono l'envoie.
@@ -60,4 +63,17 @@ export interface ApiWishlistItem {
   types: PokemonType[]
   image: string | null
   addedAt: string
+}
+
+export interface PokemonStat {
+  name: string
+  value: number
+}
+
+// Toutes les informations de la fiche d'un Pokémon.
+export interface PokemonDetails extends Pokemon {
+  height: number
+  weight: number
+  abilities: string[]
+  stats: PokemonStat[]
 }

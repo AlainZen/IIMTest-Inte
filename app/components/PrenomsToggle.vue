@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useLanguage()
 const { showPrenoms, setShowPrenoms } = useWishlist()
 </script>
 
@@ -9,6 +10,6 @@ const { showPrenoms, setShowPrenoms } = useWishlist()
       :checked="showPrenoms"
       @change="setShowPrenoms(($event.target as HTMLInputElement).checked)"
     />
-    Afficher les prénoms
+    {{ t('common.prenoms') }}
   </label>
 </template>

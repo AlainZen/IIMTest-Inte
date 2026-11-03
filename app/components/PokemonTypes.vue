@@ -2,6 +2,8 @@
 import type { PokemonType } from '~/types/pokemon'
 
 defineProps<{ types: PokemonType[] }>()
+
+const { t } = useLanguage()
 </script>
 
 <template>
@@ -12,7 +14,7 @@ defineProps<{ types: PokemonType[] }>()
       class="type"
       :style="{ background: typeStyle(type).color, color: typeStyle(type).ink }"
     >
-      {{ typeStyle(type).label }}
+      {{ t(`types.${type}`, t('types.unknown')) }}
     </li>
   </ul>
 </template>

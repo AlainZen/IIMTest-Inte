@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { PokemonNotFoundError, pokemonNameSuggestions } from '~/utils/pokeapi'
 import type { Pokemon } from '~/types/pokemon'
+import { PokemonNotFoundError } from '~/utils/pokeapi'
 
 const props = defineProps<{ isInWishlist: (id: number) => boolean; isFull: boolean }>()
 const emit = defineEmits<{ add: [pokemon: Pokemon] }>()
+
+const { t, locale } = useLanguage()
 
 const query = ref<string>('')
 const result = ref<Pokemon | null>(null)
 const error = ref<string>('')
 const loading = ref<boolean>(false)
+
+const suggestions = computed<readonly string[]>(() => nameSuggestions(locale.value))
 
 async function search(): Promise<void> {
   const text = query.value.trim()
@@ -22,8 +26,8 @@ async function search(): Promise<void> {
   } catch (cause) {
     error.value =
       cause instanceof PokemonNotFoundError
-        ? `Aucun Pokémon trouvé pour « ${text} ». Vérifie l'orthographe ou essaie son numéro.`
-        : 'PokeAPI ne répond pas. Vérifie ta connexion et relance la recherche.'
+        ? t('search.notFound', { query: text })
+        : t('search.pokeapiDown')
   } finally {
     loading.value = false
   }
@@ -40,20 +44,20 @@ function addResult(): void {
 <template>
   <div class="search">
     <form class="search-bar" role="search" @submit.prevent="search">
-      <label class="sr-only" for="search-input">Nom ou numéro du Pokémon</label>
+      <label class="sr-only" for="search-input">{{ t('search.label') }}</label>
       <input
         id="search-input"
         v-model="query"
         type="search"
         list="pokemon-names"
-        placeholder="Salamèche ou 150"
+        :placeholder="t('search.placeholder')"
         autocomplete="off"
       />
       <datalist id="pokemon-names">
-        <option v-for="name in pokemonNameSuggestions" :key="name" :value="name" />
+        <option v-for="name in suggestions" :key="name" :value="name" />
       </datalist>
       <button type="submit" :disabled="loading">
-        {{ loading ? 'Recherche…' : 'Chercher' }}
+        {{ loading ? t('search.searching') : t('search.submit') }}
       </button>
     </form>
 
@@ -66,7 +70,9 @@ function addResult(): void {
         <img v-if="result.image" :src="result.image" alt="" width="96" height="96" />
       </div>
       <div class="result-text">
-        <strong class="result-name">{{ result.name }}</strong>
+        <NuxtLink class="result-name" :to="pokemonPath(result.id)">
+          {{ localizedName(result, locale) }}
+        </NuxtLink>
         <PokemonTypes :types="result.types" />
       </div>
       <button
@@ -75,9 +81,9 @@ function addResult(): void {
         :disabled="props.isInWishlist(result.id) || isFull"
         @click="addResult"
       >
-        <template v-if="props.isInWishlist(result.id)">Déjà dans ta wishlist</template>
-        <template v-else-if="isFull">Wishlist pleine</template>
-        <template v-else>Ajouter à ma wishlist</template>
+        <template v-if="props.isInWishlist(result.id)">{{ t('search.already') }}</template>
+        <template v-else-if="isFull">{{ t('search.full') }}</template>
+        <template v-else>{{ t('search.add') }}</template>
       </button>
     </div>
   </div>

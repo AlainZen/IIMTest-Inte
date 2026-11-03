@@ -1,0 +1,96 @@
+{
+  "nav": {
+    "wishlist": "Mi lista de deseos",
+    "pokedex": "Lista completa",
+    "pages": "Páginas",
+    "language": "Idioma"
+  },
+  "common": {
+    "retry": "Reintentar",
+    "prenoms": "Mostrar los nombres de pila"
+  },
+  "wishlist": {
+    "empty": "Tu lista de deseos está vacía. Busca un Pokémon o consulta la {link}.",
+    "emptyLink": "lista completa",
+    "loading": "Cargando tu lista de deseos…",
+    "apiDown": "La API no responde. Comprueba que esté en marcha y vuelve a intentarlo.",
+    "addFailed": "{name} no se ha añadido: la API no responde.",
+    "removeFailed": "{name} no se ha quitado: la API no responde.",
+    "duplicate": "{name} ya está en tu lista de deseos.",
+    "full": "Tu lista de deseos está llena: quita un Pokémon para añadir otro."
+  },
+  "search": {
+    "label": "Nombre o número del Pokémon",
+    "placeholder": "Charmander o 150",
+    "submit": "Buscar",
+    "searching": "Buscando…",
+    "notFound": "No se ha encontrado ningún Pokémon para «{query}». Revisa la ortografía o prueba con su número.",
+    "pokeapiDown": "PokeAPI no responde. Comprueba tu conexión y vuelve a buscar.",
+    "add": "Añadir a mi lista de deseos",
+    "already": "Ya está en tu lista de deseos",
+    "full": "Lista de deseos llena"
+  },
+  "card": {
+    "rename": "Renombrar",
+    "save": "Guardar",
+    "newName": "Nuevo nombre de {name}",
+    "delete": "Eliminar",
+    "deleteAria": "Eliminar {name}"
+  },
+  "pokemon": {
+    "number": "n.º {id}"
+  },
+  "pokedex": {
+    "filterLabel": "Filtrar la lista",
+    "filterPlaceholder": "Filtrar por nombre o número",
+    "meter": "En tu lista de deseos: {count}/{max}",
+    "noMatch": "Ningún Pokémon coincide con «{filter}». Prueba con otro nombre.",
+    "pokeapiDown": "{name} no se ha añadido: PokeAPI no responde.",
+    "add": "Añadir",
+    "addAria": "Añadir {name}",
+    "remove": "Quitar",
+    "removeAria": "Quitar {name}",
+    "full": "Lista llena",
+    "wait": "Espera…"
+  },
+  "sheet": {
+    "back": "Volver a la lista completa",
+    "loading": "Cargando el Pokémon…",
+    "notFound": "Ningún Pokémon se llama «{name}».",
+    "notFoundHelp": "Comprueba la dirección o búscalo en la lista completa.",
+    "pokeapiDown": "PokeAPI no responde. Comprueba tu conexión y vuelve a intentarlo.",
+    "height": "Altura",
+    "weight": "Peso",
+    "abilities": "Habilidades",
+    "stats": "Estadísticas base"
+  },
+  "stats": {
+    "hp": "PS",
+    "attack": "Ataque",
+    "defense": "Defensa",
+    "special-attack": "Ataque especial",
+    "special-defense": "Defensa especial",
+    "speed": "Velocidad"
+  },
+  "types": {
+    "normal": "Normal",
+    "fire": "Fuego",
+    "water": "Agua",
+    "electric": "Eléctrico",
+    "grass": "Planta",
+    "ice": "Hielo",
+    "fighting": "Lucha",
+    "poison": "Veneno",
+    "ground": "Tierra",
+    "flying": "Volador",
+    "psychic": "Psíquico",
+    "bug": "Bicho",
+    "rock": "Roca",
+    "ghost": "Fantasma",
+    "dragon": "Dragón",
+    "dark": "Siniestro",
+    "steel": "Acero",
+    "fairy": "Hada",
+    "unknown": "Desconocido"
+  }
+}

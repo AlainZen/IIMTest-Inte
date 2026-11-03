@@ -19,6 +19,7 @@ export default defineConfig({
         'app/utils/wishlistRules.ts',
         'app/utils/wishlistApi.ts',
         'app/utils/localPreferences.ts',
+        'app/utils/locales.ts',
       ],
       thresholds: {
         lines: 90,

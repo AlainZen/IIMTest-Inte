@@ -1,5 +1,8 @@
 <script setup lang="ts">
+const { t, locale } = useLanguage()
 const { load } = useWishlist()
+
+useHead({ htmlAttrs: { lang: locale } })
 
 onMounted(load)
 </script>
@@ -8,10 +11,11 @@ onMounted(load)
   <div>
     <NuxtRouteAnnouncer />
     <header class="top">
+      <LanguageSwitcher />
       <p class="brand">PokéWishlist</p>
-      <nav class="nav" aria-label="Pages">
-        <NuxtLink to="/">Ma wishlist</NuxtLink>
-        <NuxtLink to="/liste-complete">Liste complète</NuxtLink>
+      <nav class="nav" :aria-label="t('nav.pages')">
+        <NuxtLink to="/">{{ t('nav.wishlist') }}</NuxtLink>
+        <NuxtLink to="/liste-complete">{{ t('nav.pokedex') }}</NuxtLink>
       </nav>
     </header>
 

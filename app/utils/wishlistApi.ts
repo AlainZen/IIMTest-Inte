@@ -1,4 +1,5 @@
 import type { ApiWishlistItem, Pokemon, WishlistItem } from '~/types/pokemon'
+import type { Locale } from '~/utils/locales'
 
 export class WishlistApiError extends Error {
   constructor(
@@ -7,6 +8,11 @@ export class WishlistApiError extends Error {
   ) {
     super(message)
   }
+}
+
+// L'API rédige ses messages d'erreur dans la langue demandée.
+function languageHeader(locale: Locale): Record<string, string> {
+  return { 'Accept-Language': locale }
 }
 
 async function toApiError(response: Response): Promise<WishlistApiError> {
@@ -29,17 +35,21 @@ export function toWishlistItem(item: ApiWishlistItem): WishlistItem {
   }
 }
 
-export async function fetchWishlist(baseUrl: string): Promise<WishlistItem[]> {
-  const response = await fetch(`${baseUrl}/wishlist`)
+export async function fetchWishlist(baseUrl: string, locale: Locale): Promise<WishlistItem[]> {
+  const response = await fetch(`${baseUrl}/wishlist`, { headers: languageHeader(locale) })
   if (!response.ok) throw await toApiError(response)
 
   return ((await response.json()) as ApiWishlistItem[]).map(toWishlistItem)
 }
 
-export async function createWishlistItem(baseUrl: string, pokemon: Pokemon): Promise<WishlistItem> {
+export async function createWishlistItem(
+  baseUrl: string,
+  pokemon: Pokemon,
+  locale: Locale,
+): Promise<WishlistItem> {
   const response = await fetch(`${baseUrl}/wishlist`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...languageHeader(locale) },
     body: JSON.stringify({
       pokemonId: pokemon.id,
       name: pokemon.name,
@@ -52,8 +62,15 @@ export async function createWishlistItem(baseUrl: string, pokemon: Pokemon): Pro
   return toWishlistItem((await response.json()) as ApiWishlistItem)
 }
 
-export async function deleteWishlistItem(baseUrl: string, id: number): Promise<void> {
-  const response = await fetch(`${baseUrl}/wishlist/${id}`, { method: 'DELETE' })
+export async function deleteWishlistItem(
+  baseUrl: string,
+  id: number,
+  locale: Locale,
+): Promise<void> {
+  const response = await fetch(`${baseUrl}/wishlist/${id}`, {
+    method: 'DELETE',
+    headers: languageHeader(locale),
+  })
 
   // Un 404 veut dire que l'entrée n'existe déjà plus : c'est le résultat voulu.
   if (!response.ok && response.status !== 404) throw await toApiError(response)
